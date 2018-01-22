@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{430A2C9E-9FAD-47E6-B949-AF459169951E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>StockTradeStrategy</RootNamespace>
+    <AssemblyName>StockTradeStrategy</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BuySellOnSignal\Converters\MaxProfitLossToText.cs" />
+    <Compile Include="BuySellOnSignal\Converters\ProfitLossToBackgroundConverter.cs" />
+    <Compile Include="BuySellOnSignal\Models\BuySellOnSignalConfig.cs" />
+    <Compile Include="BuySellOnSignal\Models\BuySellSignalOrderManager.cs" />
+    <Compile Include="BuySellOnSignal\Models\ConfigFileNames.cs" />
+    <Compile Include="BuySellOnSignal\Models\ReversalConfig.cs" />
+    <Compile Include="BuySellOnSignal\ViewModels\BuySellSignalConfigurationViewmodel.cs" />
+    <Compile Include="BuySellOnSignal\ViewModels\ReversalInfoEditorViewModel.cs" />
+    <Compile Include="BuySellOnSignal\ViewModels\ReversalListViewmodel.cs" />
+    <Compile Include="BuySellOnSignal\Views\BuySellSignalConfiguration.xaml.cs">
+      <DependentUpon>BuySellSignalConfiguration.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="BuySellOnSignal\Views\ReversalInfoEditor.xaml.cs">
+      <DependentUpon>ReversalInfoEditor.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="BuySellOnSignal\Views\ReversalList.xaml.cs">
+      <DependentUpon>ReversalList.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="BuySellOnSignal\Views\BuySellSignalConfiguration.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BuySellOnSignal\Views\ReversalInfoEditor.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BuySellOnSignal\Views\ReversalList.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\KiteConnect\KiteConnect.csproj">
+      <Project>{F905A2BB-2280-463E-A12B-EFB66A818F4F}</Project>
+      <Name>KiteConnect</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StockTrade.Jobbing\StockTrade.Jobbing.csproj">
+      <Project>{E6039427-B5CA-4843-A396-71CFF816825A}</Project>
+      <Name>StockTrade.Jobbing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StockTradeConfiguration.Data\StockTradeConfiguration.Data.csproj">
+      <Project>{6bffc391-c48f-416f-b2b4-a91c6945f10a}</Project>
+      <Name>StockTradeConfiguration.Data</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StockTradeConfiguration.Models\StockTradeConfiguration.Models.csproj">
+      <Project>{50a68408-3b5a-4f20-8135-b94e8258d511}</Project>
+      <Name>StockTradeConfiguration.Models</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\StockTradeConfigurationCommon\StockTradeConfigurationCommon.csproj">
+      <Project>{4b0a05a6-0743-4f4c-9d2b-864eb236ca9a}</Project>
+      <Name>StockTradeConfigurationCommon</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

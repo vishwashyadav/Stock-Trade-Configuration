@@ -1,0 +1,57 @@
+﻿<UserControl x:Class="Stock_Trade_Configuration.RangeBreakOutOrderConfiguration"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Stock_Trade_Configuration"
+             xmlns:viewModel="clr-namespace:Stock_Trade_Configuration.ViewModels"
+             mc:Ignorable="d" 
+             xmlns:model="clr-namespace:StockTradeConfiguration.Models;assembly=StockTradeConfiguration.Models"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             d:DesignHeight="300" d:DesignWidth="300">
+    <UserControl.Resources>
+            <ObjectDataProvider x:Key="Conditions" MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+                <ObjectDataProvider.MethodParameters>
+                    <x:Type TypeName="model:Condition"/>
+                </ObjectDataProvider.MethodParameters>
+            </ObjectDataProvider>
+        <ObjectDataProvider x:Key="OrderMode" MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="model:OrderMode"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="MarginType" MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="model:MarginType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+    </UserControl.Resources>
+    <UserControl.DataContext>
+        <viewModel:RangeBreakOutOrderConfigurationViewModel x:Name="dataContext"></viewModel:RangeBreakOutOrderConfigurationViewModel>
+    </UserControl.DataContext>
+    <Grid>
+        <DataGrid AutoGenerateColumns="False" ItemsSource="{Binding Path=RangeBreakOutConfigurations, UpdateSourceTrigger=PropertyChanged}">
+            <DataGrid.RowDetailsTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Summary}"></TextBlock>
+                </DataTemplate>
+            </DataGrid.RowDetailsTemplate>
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Symbol" Binding="{Binding Path=StockSymbol, UpdateSourceTrigger=LostFocus}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Current Price" Binding="{Binding Path=StockCurrentPrice, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Condition" ItemsSource="{Binding Source={StaticResource Conditions}}" SelectedItemBinding="{Binding Path=Condition}" ></DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Break Out Price" Binding="{Binding Path=BreakOutPrice, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Quantity" Binding="{Binding Path=Quantity, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridComboBoxColumn Header="Execute Order Mode" ItemsSource="{Binding Source={StaticResource OrderMode}}" SelectedItemBinding="{Binding Path=OrderMode}"></DataGridComboBoxColumn>
+                <DataGridComboBoxColumn Header="Margin Type" ItemsSource="{Binding Source={StaticResource MarginType}}" SelectedItemBinding="{Binding Path=MarginType}"></DataGridComboBoxColumn>
+                <DataGridTextColumn Header="Margin(%)" Binding="{Binding Path=Margin, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Buy/Sell Price" Binding="{Binding Path=BuySellPrice, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn Header="Stop Loss" Binding="{Binding Path=StopLoss, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

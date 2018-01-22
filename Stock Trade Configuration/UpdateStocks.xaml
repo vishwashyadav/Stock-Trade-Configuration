@@ -1,0 +1,74 @@
+﻿<Window x:Class="Stock_Trade_Configuration.UpdateStocks"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Stock_Trade_Configuration"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        xmlns:vm="clr-namespace:Stock_Trade_Configuration.ViewModels"
+        Title="Stock Symbol Update Window" Height="560" Width="700">
+    <Window.DataContext>
+        <vm:UpdateStocksViewModel></vm:UpdateStocksViewModel>
+    </Window.DataContext>
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Button Margin="0,2" Content="Update Stocks.." Command="{Binding Path=StartCommand}" HorizontalAlignment="Left" ></Button>
+        <Border Grid.Row="1" BorderBrush="#888" BorderThickness="2">
+        <ItemsControl Margin="5" ItemsSource="{Binding StocksInfoes, UpdateSourceTrigger=PropertyChanged}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Height="90" Margin="2" BorderBrush="#FFA2A2A2" BorderThickness="1" Background="#FFF7F5F5">
+                        <StackPanel>
+                            <TextBlock FontWeight="Bold" Text="{Binding Path=Exchange}"></TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="Last Updated On : "></TextBlock>
+                                    <TextBlock Margin="3,0" Text="{Binding Path=LastUpdatedOn}"></TextBlock>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="No of Items : "></TextBlock>
+                                <TextBlock Text="{Binding Path=TotalItems}"></TextBlock>
+                            </StackPanel>
+
+                                <StackPanel Margin="0,3">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsUpdatingStocks, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+                                    <TextBlock Text="Updating Stock Symbols..."></TextBlock>
+                                <ProgressBar IsIndeterminate="True" Height="15"></ProgressBar>
+                                </StackPanel>
+                                <TextBlock Foreground="Red" Text="{Binding Path=FailedReason}">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=FailedReason}" Value="{x:Null}">
+                                                    <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=FailedReason}" Value="">
+                                                    <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            
+                            </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+        </Border>
+    </Grid>
+</Window>

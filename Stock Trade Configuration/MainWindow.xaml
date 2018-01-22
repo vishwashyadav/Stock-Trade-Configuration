@@ -1,0 +1,184 @@
+﻿<Window x:Class="Stock_Trade_Configuration.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Stock_Trade_Configuration"
+        xmlns:strategyView="clr-namespace:StockTradeStrategy.BuySellOnSignal.Views;assembly=StockTradeStrategy"
+        xmlns:vm="clr-namespace:Stock_Trade_Configuration.ViewModels"
+        mc:Ignorable="d"
+        WindowStartupLocation="CenterScreen"
+        Title="Auto Trading Software" Height="550" Width="830">
+    <Window.DataContext>
+        <vm:MainWindowViewModel x:Name="vm"></vm:MainWindowViewModel>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+        </Grid.RowDefinitions>
+        <!--<ItemsControl ItemsSource="{Binding Path=AllViews, UpdateSourceTrigger=PropertyChanged}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel></WrapPanel>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border Height="100" Width="200"></Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>-->
+        <!--<StackPanel Orientation="Horizontal">
+            <TextBlock Margin="3" Text="UserId"></TextBlock>
+            <TextBox x:Name="txtUserId" Margin="3" Width="120" IsReadOnly="True"></TextBox>
+
+            <TextBlock Margin="3" Text="API Key"></TextBlock>
+            <TextBox x:Name="txtAPIKey" Margin="3" Width="120" IsReadOnly="True"></TextBox>
+
+            <TextBlock Margin="3" Text="Secret Key"></TextBlock>
+            <TextBox x:Name="txtSecretKey" Margin="3" Width="120" IsReadOnly="True"></TextBox>
+        </StackPanel>-->
+        
+        <TabControl Visibility="Visible" Grid.Row="1" x:Name="tabControl">
+            <TabControl.Items>
+                <TabItem Header="Trade by Buy/Sell Signal">
+                    <strategyView:BuySellSignalConfiguration x:Name="ctrlBuySellSignal"></strategyView:BuySellSignalConfiguration>
+                </TabItem>
+                <TabItem Header="Trade On Open Price" Visibility="Collapsed">
+                    <local:OpenPriceBreakout x:Name="viewOpenPriceBreakout"></local:OpenPriceBreakout>
+                </TabItem>
+                <TabItem Visibility="Collapsed" Header="Candle Breakout Strategy">
+                    <local:StockWatch x:Name="stockWatch"></local:StockWatch>
+                </TabItem>
+                <TabItem Header="Jobbing" Visibility="Visible">
+                    <local:JobbingConfiguration></local:JobbingConfiguration>
+                </TabItem>
+                <!--<TabItem Visibility="Collapsed" Header="Stock Range Break Out Status">
+        <local:RangeBreakOutOrderConfiguration x:Name="rangeBreakOutGrid"></local:RangeBreakOutOrderConfiguration>
+                </TabItem>
+                
+                
+                <TabItem Header="Open High/Low" Visibility="Collapsed">
+                    <DataGrid x:Name="openHighLowGrid">
+                        <DataGrid.CellStyle>
+                            <Style TargetType="DataGridCell" BasedOn="{StaticResource {x:Type DataGridCell}}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Path=DataContext.Status, RelativeSource={RelativeSource AncestorType=DataGridRow,Mode=FindAncestor}}" Value="OpenHigh">
+                                        <Setter Property="Background" Value="Red"></Setter>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Path=DataContext.Status, RelativeSource={RelativeSource AncestorType=DataGridRow,Mode=FindAncestor}}" Value="OpenLow">
+                                        <Setter Property="Background" Value="Green"></Setter>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </DataGrid.CellStyle>
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Path=Symbol}" Header="StockSymbol">
+                                
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding Path=Open}" Header="Open">
+
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding Path=High}" Header="High">
+
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding Path=Low}" Header="Low">
+
+                            </DataGridTextColumn>
+                            <DataGridTextColumn Binding="{Binding Path=Status}" Header="Status">
+
+                            </DataGridTextColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </TabItem>-->
+            </TabControl.Items>
+        </TabControl>
+        <StackPanel Grid.Row="2">
+            <StackPanel Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal" >
+                <Button Background="Red" x:Name="btnStatus">
+                    <Button.Template>
+                        <ControlTemplate>
+                            <Border Background="{TemplateBinding Background}" x:Name="brdStatus" BorderBrush="Black" BorderThickness="2" Width="30" Height="30" CornerRadius="15">
+
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Button Margin="10" x:Name="btnSetting" Click="btnSetting_Click" Content="Setting"></Button>
+                <Button Margin="10" x:Name="btnStart" Click="Start_Click" Content="Start"></Button>
+                <Button Margin="10" x:Name="btnStop" Click="btnStop_Click" Content="Stop"></Button>
+                <Button Margin="10" Click="Button_Click_2" Content="Validate Symbol"></Button>
+                <Button Margin="10" Name="btnWatchHighLow" Click="btnWatchHighLow_Click" Content="Watch Open High Low"></Button>
+                <Button Margin="10" Width="70" x:Name="btnLoadAllInstruments" Content="GetNSEInstruments" Click="btnLoadAllInstruments_Click">
+                    <Button.Template>
+                        <ControlTemplate>
+                            <Border>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="auto"></RowDefinition>
+                                        <RowDefinition></RowDefinition>
+                                    </Grid.RowDefinitions>
+                                    <ProgressBar >
+                                        <ProgressBar.Style>
+                                            <Style TargetType="ProgressBar">
+                                                <Setter Property="Height" Value="0">
+
+                                                </Setter>
+                                                <Setter Property="IsIndeterminate" Value="False"></Setter>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding Path=IsEnabled, ElementName=btnLoadAllInstruments}" Value="False">
+                                                        <Setter Property="Height" Value="10">
+
+                                                        </Setter>
+                                                        <Setter Property="IsIndeterminate" Value="True"></Setter>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ProgressBar.Style>
+                                    </ProgressBar>
+                                    <TextBlock Grid.Row="1" VerticalAlignment="Stretch" Text="Load All Instruments"></TextBlock>
+                                </Grid>
+
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </StackPanel>
+            <StatusBar  Grid.Row="2" Background="LightYellow">
+                <TextBlock>
+                    <TextBlock.Inlines>
+                        <Run Text="API-" FontWeight="SemiBold"></Run>
+                        <Run x:Name="txtAPIClient" Text="Zerodha" ></Run>
+                    </TextBlock.Inlines>
+                </TextBlock>
+                <TextBlock Margin="5,0" Text="⁞" />
+                <TextBlock>
+                    <TextBlock.Inlines>
+                        <Run Text="User ID -" FontWeight="SemiBold"></Run>
+                        <Run x:Name="txtUserId" ></Run>
+                    </TextBlock.Inlines>
+                </TextBlock>
+                <TextBlock Margin="5,0" Text="⁞" />
+                <TextBlock>
+                    <TextBlock.Inlines>
+                        <Run Text="API Key -" FontWeight="SemiBold"></Run>
+                        <Run x:Name="txtAPIKey" ></Run>
+                    </TextBlock.Inlines>
+                </TextBlock>
+                <TextBlock Margin="5,0" Text="⁞" />
+                <TextBlock>
+                    <TextBlock.Inlines>
+                        <Run Text="Secret Key -" FontWeight="SemiBold"></Run>
+                        <Run x:Name="txtSecretKey" ></Run>
+                    </TextBlock.Inlines>
+                </TextBlock>
+                <TextBlock HorizontalAlignment="Right">
+                    <Hyperlink Click="Hyperlink_Click">Update Stock Symbols</Hyperlink>
+                </TextBlock>
+            </StatusBar>
+        </StackPanel>
+       
+    </Grid>
+</Window>

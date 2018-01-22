@@ -1,0 +1,258 @@
+﻿<UserControl x:Class="Stock_Trade_Configuration.JobbingConfiguration"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Stock_Trade_Configuration"
+                  xmlns:VM="clr-namespace:Stock_Trade_Configuration.ViewModels"
+             mc:Ignorable="d" 
+             xmlns:mod="clr-namespace:StockTradeConfiguration.Models;assembly=StockTradeConfiguration.Models"
+             xmlns:job="clr-namespace:StockTrade.Jobbing;assembly=StockTrade.Jobbing"
+             xmlns:System="clr-namespace:System;assembly=mscorlib"
+             d:DesignHeight="600" d:DesignWidth="800">
+    <UserControl.Resources>
+        <ObjectDataProvider x:Key="profitMarginType" MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="job:ProfitMarginType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <ObjectDataProvider x:Key="incrementalMethod" MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="mod:StockIncrementalMethod"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+        <Style TargetType="FrameworkElement" x:Key="pivotJobbing" >
+            <Setter Property="Visibility" Value="Collapsed"></Setter>
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding Path=SelectedJobbingType.Value, UpdateSourceTrigger=PropertyChanged}" Value="{x:Type job:PivotJobbing}">
+                    <Setter Property="Visibility" Value="Visible"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style TargetType="FrameworkElement" x:Key="pullBackJobbing" >
+            <Setter Property="Visibility" Value="Collapsed"></Setter>
+            <Style.Triggers>
+                
+                <DataTrigger Binding="{Binding Path=SelectedJobbingType.Value, UpdateSourceTrigger=PropertyChanged}" Value="{x:Type job:StrongPullBackJobbing}">
+                    <Setter Property="Visibility" Value="Visible"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style TargetType="FrameworkElement" x:Key="bareerJobbing" >
+            <Setter Property="Visibility" Value="Collapsed"></Setter>
+            <Style.Triggers>
+
+                <DataTrigger Binding="{Binding Path=SelectedJobbingType.Value, UpdateSourceTrigger=PropertyChanged}" Value="{x:Type job:BareerJobbing}">
+                    <Setter Property="Visibility" Value="Visible"></Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+    
+    <UserControl.DataContext>
+        <VM:JobbingConfigurationViewModel x:Name="VM"></VM:JobbingConfigurationViewModel>
+    </UserControl.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <GroupBox Margin="5" Header="Add Scrip">
+            <Grid>
+                <Grid.Resources>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Margin" Value="3"></Setter>
+                        <Setter Property="FontWeight" Value="SemiBold"></Setter>
+                    </Style>
+                    <Style TargetType="ComboBox">
+                        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                        <Setter Property="Margin" Value="3"></Setter>
+                        <Setter Property="Width" Value="120"></Setter>
+                        <Setter Property="IsEditable" Value="True"></Setter>
+                    </Style>
+                    <Style TargetType="TextBox">
+                        <Setter Property="Margin" Value="3"></Setter>
+                        <Setter Property="Width" Value="70"></Setter>
+                    </Style>
+                    
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                    <ColumnDefinition Width="Auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                    <RowDefinition Height="auto"></RowDefinition>
+                </Grid.RowDefinitions>
+
+                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Exchange : "></TextBlock>
+                <ComboBox ItemsSource="{Binding Path=Exchanges, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=Exchange, UpdateSourceTrigger=PropertyChanged}" SelectedIndex="0" Grid.Row="0" Grid.Column="1"></ComboBox>
+                        
+                            <TextBlock Grid.Column="2" Grid.Row="0" Text="Symbol : "></TextBlock>
+                <ComboBox ItemsSource="{Binding Path=Symbols, UpdateSourceTrigger=PropertyChanged}" SelectedItem="{Binding Path=Symbol, UpdateSourceTrigger=PropertyChanged}" SelectedIndex="0" Grid.Column="3" Grid.Row="0"></ComboBox>
+
+                <TextBlock Grid.Column="4" Grid.Row="0" Text="Jobbing Type : "></TextBlock>
+                <ComboBox ItemsSource="{Binding Path=JobbingTypes, UpdateSourceTrigger=PropertyChanged}" DisplayMemberPath="Key" SelectedIndex="0" SelectedItem="{Binding Path=SelectedJobbingType, UpdateSourceTrigger=PropertyChanged}" Grid.Column="5" Grid.Row="0"></ComboBox>
+
+                <TextBlock Grid.Column="0" Grid.Row="1" Text="Profit Margin : "></TextBlock>
+                <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="1">
+                    <ComboBox IsEditable="True" ItemsSource="{Binding Source={StaticResource profitMarginType}}" SelectedItem="{Binding Path=ProfitMarginType, UpdateSourceTrigger=PropertyChanged}" SelectedIndex="0" Grid.Column="1" Grid.Row="1">
+                    </ComboBox>
+                    <TextBox Text="{Binding Path=Margin, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                </StackPanel>
+
+                <TextBlock Style="{StaticResource pivotJobbing}" Grid.Column="0" Grid.Row="2" Text="Incremental method : "></TextBlock>
+                <StackPanel Style="{StaticResource pivotJobbing}" Orientation="Horizontal" Grid.Column="1" Grid.Row="2">
+                    <ComboBox IsEditable="True" ItemsSource="{Binding Source={StaticResource incrementalMethod}}" SelectedItem="{Binding Path=IncrementalMethod, UpdateSourceTrigger=PropertyChanged}" SelectedIndex="0" Grid.Column="1" Grid.Row="1">
+                    </ComboBox>
+                    <TextBox Text="{Binding Path=IncrementalNumber, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                </StackPanel>
+
+
+                <TextBlock Style="{StaticResource pullBackJobbing}" Grid.Column="2" Grid.Row="1" Text="PullBack Percentage : "></TextBlock>
+                <ComboBox Style="{StaticResource pullBackJobbing}" ItemsSource="{Binding Path=PullBackPercentage}" DisplayMemberPath="Key" SelectedItem="{Binding Path=SelectedPullBackPercentage}" Grid.Column="3" Grid.Row="1"></ComboBox>
+
+                <StackPanel Grid.Row="2" Grid.ColumnSpan="6" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button x:Name="btnAddStock" Click="btnAddStock_Click" Margin="5" Grid.Row="2" Grid.ColumnSpan="2" Content="Add Stock"></Button>
+                    <Button Margin="5" Content="Reset"></Button>
+                </StackPanel>
+            </Grid>
+        </GroupBox>
+        <GroupBox Margin="5" Grid.Row="1" Header="Configured Stocks for Jobbing">
+            <ListView Margin="10" ItemsSource="{Binding Path=JobbingStocks, UpdateSourceTrigger=PropertyChanged}">
+                
+                <ListView.View>
+                    <GridView >
+                        <GridView.Columns>
+                            <GridViewColumn Width="120" Header="Exchange">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=Exchange}" VerticalAlignment="Center"></TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="120" Header="Symbol">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=Symbol}" VerticalAlignment="Center"></TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="120" Header="CurrentPrice">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=CurrentPrice}" VerticalAlignment="Center"></TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="120" Header="Margin">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=Margin}" VerticalAlignment="Center"></TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="120" Header="JobbingType">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=JobbingType}" VerticalAlignment="Center"></TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="120" Header="OpenPositions">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=OpenPositionsCount, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"></TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="200" Header="Action">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate >
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <StackPanel>
+                                            <Button Margin="5" Width="90"  Click="Start_Click">
+                                                <Button.Style>
+                                                    <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                        <Setter Property="Content" Value="Start"></Setter>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Path=Status}" Value="Running">
+                                                                <Setter Property="Content" Value="Stop"></Setter>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Button.Style>
+                                            </Button>
+                                            <Button Margin="5" Width="90" Content="Close Open Positions"></Button>
+                                        </StackPanel>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Width="120" Header="Status">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=Status}" VerticalAlignment="Center"></TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Header="Details">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock >
+                                            <Hyperlink TextDecorations="Underline" Click="Hyperlink_Click">
+                                                <TextBlock Text="See Transaction History"></TextBlock>
+                                            </Hyperlink>
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                        </GridView.Columns>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+            <!--<DataGrid CanUserAddRows="False" Margin="10" ItemsSource="{Binding Path=JobbingStocks, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Exchange" Binding="{Binding Path=Exchange}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Symbol" Binding="{Binding Path=Symbol}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="BasePrice" Binding="{Binding Path=CurrentPrice}"></DataGridTextColumn>
+                    <DataGridTextColumn Header="Margin" Binding="{Binding Path=Margin}"></DataGridTextColumn>
+                    <DataGridTemplateColumn Header="Action">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate >
+                                <StackPanel>
+                                    <Button Margin="5" Width="90" Content="Start" Click="Start_Click"></Button>
+                                    <Button Margin="5" Width="90" Content="Close Open Positions"></Button>
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>-->
+        </GroupBox>
+    </Grid>
+</UserControl>
