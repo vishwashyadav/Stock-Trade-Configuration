@@ -120,8 +120,39 @@ namespace Stock_Trade_Configuration.ViewModels
             LoadAllJobbingType();
             Events.StatusChangedEvent+= Events_JobbingStatusChangedEvent;
             Events.OpenPositionsChangedEvent += Events_OpenPositionsChangedEvent;
+            Events.TargetStopLossChangeEvent += Events_TargetStopLossChangeEvent;
+            Events.TargetStopLossHitEvent += Events_TargetStopLossHitEvent; 
+            Events.StockLastPriceChangeEvent += Events_StockLastPriceChangeEvent; 
         }
 
+        private void Events_StockLastPriceChangeEvent(string exchange, string symbol, decimal lastPrice)
+        {
+            var stock = JobbingStocks.FirstOrDefault(s => s.Exchange == exchange && symbol == s.Symbol);
+            if (stock != null)
+            {
+                stock.CurrentPrice = lastPrice;
+            }
+        }
+
+        private void Events_TargetStopLossHitEvent(string exchange, string symbol, int targetHitCount, int stopLossHitCount)
+        {
+            var stock = JobbingStocks.FirstOrDefault(s => s.Exchange == exchange && symbol == s.Symbol);
+            if (stock != null)
+            {
+                stock.TargetHitCount = targetHitCount;
+                stock.StopLossHitCount = stopLossHitCount;
+            }
+        }
+
+        private void Events_TargetStopLossChangeEvent(string exchange, string symbol, decimal targetPrice, decimal stopLossPrice)
+        {
+            var stock = JobbingStocks.FirstOrDefault(s => s.Exchange == exchange && symbol == s.Symbol);
+            if (stock != null)
+            {
+                stock.TargetPrice = targetPrice;
+                stock.StopLossPrice = stopLossPrice;
+            }
+        }
         private void Events_OpenPositionsChangedEvent(string exchange, string symbol, int openPositions)
         {
             var stock = JobbingStocks.FirstOrDefault(s => s.Exchange == exchange && symbol == s.Symbol);
@@ -169,6 +200,7 @@ namespace Stock_Trade_Configuration.ViewModels
 
         private void LoadAllJobbingType()
         { 
+
             Task.Factory.StartNew(() =>
             {
                 Dictionary<string, Type> jobbingTypeWithName = new Dictionary<string, Type>();
@@ -208,6 +240,7 @@ namespace Stock_Trade_Configuration.ViewModels
                 }
                 else if(SelectedJobbingType.Value == typeof(PivotJobbing))
                 {
+                    (stock as PivotJobbing).PivotPrice = stock.CurrentPrice;
                     (stock as PivotJobbing).IncrementalMethod = IncrementalMethod;
                     (stock as PivotJobbing).IncrementalNumber = IncrementalNumber;
                 }

@@ -30,7 +30,7 @@
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
     <PublisherName>Vishwash</PublisherName>
-    <ApplicationRevision>11</ApplicationRevision>
+    <ApplicationRevision>17</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <PublishWizardCompleted>true</PublishWizardCompleted>
@@ -127,9 +127,6 @@
     <Compile Include="LoginAuthentication.xaml.cs">
       <DependentUpon>LoginAuthentication.xaml</DependentUpon>
     </Compile>
-    <Compile Include="OpenPriceBreakout.xaml.cs">
-      <DependentUpon>OpenPriceBreakout.xaml</DependentUpon>
-    </Compile>
     <Compile Include="RangeBreakOutOrderConfiguration.xaml.cs">
       <DependentUpon>RangeBreakOutOrderConfiguration.xaml</DependentUpon>
     </Compile>
@@ -145,26 +142,25 @@
     <Compile Include="Tickers\StockBreakOutTicker.cs" />
     <Compile Include="Tickers\StockOrderTicker.cs" />
     <Compile Include="Tickers\StockTimeZomeTicker.cs" />
-    <Compile Include="StockWatch.xaml.cs">
-      <DependentUpon>StockWatch.xaml</DependentUpon>
-    </Compile>
     <Compile Include="UpdateStocks.xaml.cs">
       <DependentUpon>UpdateStocks.xaml</DependentUpon>
     </Compile>
     <Compile Include="UserConfigCheck.xaml.cs">
       <DependentUpon>UserConfigCheck.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ViewModels\ConfigurationFileNames.cs" />
+    <Compile Include="ViewModels\APIInfoEditorViewModel.cs" />
     <Compile Include="ViewModels\JobbingConfigurationViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
     <Compile Include="ViewModels\PreOpenBreakOutStockOrder.cs" />
-    <Compile Include="ViewModels\PreOpenPriceBreakout.cs" />
     <Compile Include="ViewModels\RangeBreakOutOrderConfigurationViewModel.cs" />
     <Compile Include="ViewModels\SettingValues.cs" />
     <Compile Include="ViewModels\StockFinderViewModel.cs" />
     <Compile Include="ViewModels\StockWatchViewModel.cs" />
     <Compile Include="ViewModels\UpdateStocksViewModel.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="Views\APIInfoEditor.xaml.cs">
+      <DependentUpon>APIInfoEditor.xaml</DependentUpon>
+    </Compile>
     <Page Include="JobbingConfiguration.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -189,10 +185,6 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="OpenPriceBreakout.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="RangeBreakOutOrderConfiguration.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -205,15 +197,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="StockWatch.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="UpdateStocks.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="UserConfigCheck.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\APIInfoEditor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -269,8 +261,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KiteConnect\KiteConnect.csproj">
-      <Project>{f905a2bb-2280-463e-a12b-efb66a818f4f}</Project>
+    <ProjectReference Include="..\..\..\..\..\..\Users\H9XR\Downloads\dotnetkiteconnect-kite3\KiteConnect\KiteConnect.csproj">
+      <Project>{f5f75ad6-e72f-44da-8d3f-1360b000c684}</Project>
       <Name>KiteConnect</Name>
     </ProjectReference>
     <ProjectReference Include="..\StockTrade.Jobbing\StockTrade.Jobbing.csproj">

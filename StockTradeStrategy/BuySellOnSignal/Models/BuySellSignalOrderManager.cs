@@ -7,84 +7,104 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace StockTradeStrategy.BuySellOnSignal.Models
 {
     public class BuySellSignalOrderManager
     {
+        public decimal DayMaxProfit { get; set; }
+        public decimal DayMaxLoss { get; set; }
+        private SignalSettingInfo _signalSettingInfo { get; set; }
+        public decimal DayCurrentProfitLoss { get; set; }
 
+        public decimal CurrentProfitLoss { get; set; }
+        List<BuySellStockOnSignal> _configuresStocks = new List<BuySellStockOnSignal>();
         private KiteConnect.Kite _kite;
         private static BuySellSignalOrderManager _instance = new BuySellSignalOrderManager();
         public static BuySellSignalOrderManager Instance
         {
             get { return _instance; }
         }
-
+        
         private BuySellSignalOrderManager()
         {
-            
-        }
-        
-        List<BuySellStockOnSignal> _configuresStocks = new List<BuySellStockOnSignal>();
-        public void Start(BuySellOnSignalSymbolConfig stock, KiteConnect.Kite kite)
-        {
-            var clonnedStock = stock.DeepCopy<BuySellOnSignalSymbolConfig>();
-            BuySellStockOnSignal signal = new BuySellStockOnSignal(clonnedStock, kite);
-            _kite = kite;
-            signal.Start();
-            _configuresStocks.Add(signal);
-            if (_configuresStocks.Count == 1)
-            {
-                CheckAsync();
-                Events.PositionUpdateEvent += Events_PositionUpdateEvent;
-            }
+            Events.DayProfitLossChanged += Events_DayProfitLossChanged;
         }
 
-        private void Events_PositionUpdateEvent(string exchange, string symbol, KiteConnect.Position position)
+        private void Events_DayProfitLossChanged(decimal pnl)
         {
-            if(_configuresStocks!=null && _configuresStocks.Any())
-            {
-                var stock = _configuresStocks.FirstOrDefault(s => s.IsMatchSymbol(exchange, symbol));
-                if(stock!=null)
-                {
-                    if(stock.CheckMaxProfitLossAndClosePosition(position))
-                    {
-                        _configuresStocks.Remove(stock);
-                        if (!_configuresStocks.Any())
-                            Events.PositionUpdateEvent -= Events_PositionUpdateEvent;
-                    }
-                }
-            }
+            CurrentProfitLoss = pnl;
+            CheckGlobalProfitLoss();
         }
 
-        private async void CheckAsync()
+        public async void UpdateCurrentProfitLoss(BuySellOnSignalSymbolConfig stock)
         {
             await Task.Factory.StartNew(() =>
             {
-                check();
+                int quantity = stock.NetQuantity.HasValue ?  stock.NetQuantity.Value:0;
+                var pnl = stock.CurrentProfitLoss;
+
+                if (_configuresStocks != null && _configuresStocks.Any())
+                {
+                    var configuredstock = _configuresStocks.FirstOrDefault(s => s.IsMatchSymbol(stock.Exchange, stock.Symbol));
+                    if (configuredstock != null)
+                    {
+                        if (configuredstock.CheckMaxProfitLossAndClosePosition(quantity, pnl))
+                        {
+                            _configuresStocks.Remove(configuredstock);
+                        }
+                    }
+                }
             });
         }
 
-        async void check()
+        public void Start(BuySellOnSignalSymbolConfig stock, KiteConnect.Kite kite, SignalSettingInfo settingInfo)
         {
-            while (true)
+            var clonnedStock = stock.DeepCopy<BuySellOnSignalSymbolConfig>();
+            clonnedStock.StartTime = stock.StartTime;
+            var clonnedSetting = settingInfo != null ? settingInfo.DeepCopy<SignalSettingInfo>() : new SignalSettingInfo();
+            BuySellStockOnSignal signal = new BuySellStockOnSignal(clonnedStock, kite,clonnedSetting);
+
+            var addedstock = _configuresStocks.FirstOrDefault(s => s.IsMatchSymbol(clonnedStock.Exchange, clonnedStock.Symbol));
+            if (addedstock != null)
             {
-                WatchPosition();
-                await Task.Delay(1000);
+                addedstock.Reset();
+                _configuresStocks.Remove(addedstock);
             }
+            _kite = kite;
+            signal.Start();
+
+            _configuresStocks.Add(signal);
+        
         }
 
-        internal void SquareOffAllPositions(BuySellOnSignalSymbolConfig buySellOnSignalSymbolConfig)
+        public void SetDayProfitLoss(decimal maxProfit, decimal maxLoss)
+        {
+            DayMaxProfit = maxProfit;
+            DayMaxLoss = maxLoss;
+        }
+
+        internal void SquareOffAllPositions(BuySellOnSignalSymbolConfig buySellOnSignalSymbolConfig,int count)
         {
             if (_configuresStocks != null && _configuresStocks.Any())
             {
                 var stock = _configuresStocks.FirstOrDefault(s => s.IsMatchSymbol(buySellOnSignalSymbolConfig.Exchange, buySellOnSignalSymbolConfig.Symbol));
                 if (stock != null)
                 {
-                    stock.SquareOffAllPositions();
+                    stock.SquareOffAllPositions(count);
                 }
             }
         }
+
+        internal void UpdateSettingInfo(SignalSettingInfo settingInfo)
+        {
+            _configuresStocks.AsParallel().ForAll(s =>
+            {
+                s.UpdateSettingInfo(settingInfo);
+            });
+        }
+
         public void UpdateMaxProfit(BuySellOnSignalSymbolConfig buySellOnSignalSymbolConfig)
         {
             if (_configuresStocks != null && _configuresStocks.Any())
@@ -104,12 +124,11 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
                 var stock = _configuresStocks.FirstOrDefault(s => s.IsMatchSymbol(buySellOnSignalSymbolConfig.Exchange, buySellOnSignalSymbolConfig.Symbol));
                 if (stock != null)
                 {
-                    stock.UpdateMaxLoss(buySellOnSignalSymbolConfig.MaxProfit);
+                    stock.UpdateMaxLoss(buySellOnSignalSymbolConfig.MaxLoss);
                 }
             }
         }
-
-
+     
         internal void Stop(BuySellOnSignalSymbolConfig buySellOnSignalSymbolConfig)
         {
             if (_configuresStocks != null && _configuresStocks.Any())
@@ -117,33 +136,46 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
                 var stock = _configuresStocks.FirstOrDefault(s => s.IsMatchSymbol(buySellOnSignalSymbolConfig.Exchange, buySellOnSignalSymbolConfig.Symbol));
                 if (stock != null)
                 {
-                    stock.CloseAllPosition();
-                    _configuresStocks.Remove(stock);
+                    stock.CloseAllPosition(StrategyStockStatus.Stopped);
+                    //_configuresStocks.Remove(stock);
                 }
             }
         }
-
-       
-
-        private void WatchPosition()
+        Dictionary<string, int> _openPositions = new Dictionary<string, int>();
+        private decimal _oldInactivePnl;
+        
+        private async void CheckGlobalProfitLoss()
         {
-            try
+            await Task.Factory.StartNew(() =>
             {
-                var positions = _kite.GetPositions();
-                foreach (var position in positions.Day)
+                if (DayMaxLoss != 0 && DayMaxProfit != 0)
                 {
-                    Events.RaisePositionUpdateEventEvent(position.Exchange, position.TradingSymbol, position);
-                }
-            }
-            catch (Exception ex)
-            {
+                    var shouldClosePosition = false;
+                    StrategyStockStatus status = StrategyStockStatus.Added;
+                    if (CurrentProfitLoss > 0 && CurrentProfitLoss >= DayMaxProfit)
+                    {
+                        shouldClosePosition = true;
+                        status = StrategyStockStatus.DayProfitReached;
+                    }
+                    else if (CurrentProfitLoss < 0 && Math.Abs(CurrentProfitLoss) >= DayMaxLoss)
+                    {
+                        shouldClosePosition = true;
+                        status = StrategyStockStatus.DayLossReached;
+                    }
 
-            }
+                    if (shouldClosePosition)
+                    {
+                        _configuresStocks.ForEach(s => s.CloseAllPosition(status));
+                    }
+                }
+            });
         }
     }
 
     public class BuySellStockOnSignal
     {
+        #region private variables
+        private string _tradingSymbol;
         int _currentOpenPosition = 0;
         int _countOfContiniousExecutionInOneDirection=0;
         private KiteConnect.Kite _kite;
@@ -151,11 +183,14 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
         private BuySellOnSignalSymbolConfig _config;
         OrderMode? _oldOrderMode;
         FileSystemWatcher fileWather = new FileSystemWatcher();
+        SignalSettingInfo _signalSettingInfo;
+        #endregion
 
-        public BuySellStockOnSignal(BuySellOnSignalSymbolConfig config, KiteConnect.Kite kite)
+        public BuySellStockOnSignal(BuySellOnSignalSymbolConfig config, KiteConnect.Kite kite, SignalSettingInfo signalSettingInfo)
         {
             _config = config;
-            _kite = kite; 
+            _kite = kite;
+            _signalSettingInfo = signalSettingInfo;
             if(config.ReversalInfoes!=null && config.ReversalInfoes.Any())
             {
                 _reversalMultiplier = config.ReversalInfoes.GroupBy(s => s.ReversalNumber).ToDictionary(key => key.Key, value => value.FirstOrDefault().Multiplier);
@@ -187,13 +222,31 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
                 };
 
                 fileWather.Changed += FileWather_Changed;
+                _tradingSymbol = string.Format("{0}:{1}", _config.Exchange, _config.Symbol);
                 _config.Status = StrategyStockStatus.Running;
                 Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, _config.Status.ToString());
-
+                Events.PositionUpdateEvent += Events_PositionUpdateEvent;
+                Events.StockLTPChangedEvent += Events_StockLTPChangedEvent;
             }
             catch (Exception ex)
             {
                 
+            }
+        }
+
+        private void Events_StockLTPChangedEvent(string tradingSymbol, decimal lastPrice)
+        {
+            if(_config!=null && tradingSymbol == _tradingSymbol)
+            {
+                _config.LTP = lastPrice;
+            }
+        }
+
+        private void Events_PositionUpdateEvent(string tradingSymbol, Position position)
+        {
+            if(string.Format("{0}:{1}",_config.Exchange,_config.Symbol)==tradingSymbol)
+            {
+                _currentOpenPosition = position.Quantity;
             }
         }
 
@@ -202,6 +255,11 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
             Try:
             try
             {
+                if (DateTime.Now.TimeOfDay < _config.StartTime)
+                {
+                    Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, "Rejected because signal not yet synced");
+                    return;
+                }
                 fileWather.EnableRaisingEvents = false;
                 string fileName = Path.GetFileNameWithoutExtension(e.FullPath);
                 if (fileName.Equals(_config.MappedSymbolName, StringComparison.InvariantCultureIgnoreCase))
@@ -213,8 +271,9 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
                         if (!lines.Any())
                             return;
                         var firstLine = lines.FirstOrDefault();
+                        var mode = IsEligibleToPlaceOrder(firstLine, _oldOrderMode);
                         var latestLines = firstLine.Split(new string[] { _config.Seperator.Trim() }, StringSplitOptions.RemoveEmptyEntries);
-                        OrderMode? mode = latestLines[0].Trim().Equals(OrderMode.BUY.ToString(), StringComparison.InvariantCultureIgnoreCase) ? OrderMode.BUY : (latestLines[0].Equals(OrderMode.SELL.ToString(), StringComparison.InvariantCultureIgnoreCase) ? (OrderMode?)OrderMode.SELL : null);
+                        //OrderMode? mode = latestLines[0].Trim().Equals(OrderMode.BUY.ToString(), StringComparison.InvariantCultureIgnoreCase) ? OrderMode.BUY : (latestLines[0].Equals(OrderMode.SELL.ToString(), StringComparison.InvariantCultureIgnoreCase) ? (OrderMode?)OrderMode.SELL : null);
                         if (mode.HasValue)
                         {
                             try
@@ -255,15 +314,13 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
                 return;
 
             var reversal = _reversalMultiplier.Where(s => s.Key <= _countOfContiniousExecutionInOneDirection).OrderByDescending(s => s.Key).FirstOrDefault();
-            if (reversal.Key != 0)
+            if (reversal.Value != 0)
             {
-                quantity = (_config.LotSize * reversal.Value) + _currentOpenPosition;
-                _currentOpenPosition = quantity - _currentOpenPosition;
+                quantity = (_config.LotSize * reversal.Value) + Math.Abs(_currentOpenPosition);
             }
             else
             {
                 quantity = _config.LotSize;
-                _currentOpenPosition = quantity;
             }
                 
             _countOfContiniousExecutionInOneDirection++;
@@ -271,7 +328,8 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
             _oldOrderMode = orderMode;
             try
             {
-                var orderResponse = _kite.PlaceOrder(_config.Exchange, _config.Symbol, orderMode.ToString(), quantity.ToString(), Product: "MIS", OrderType: "MARKET");
+                var orderResponse = _kite.PlaceOrder(_config.Exchange, _config.Symbol, orderMode.ToString(), quantity, Product: "MIS", OrderType: "MARKET");
+                Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, orderMode + " order executed");
             }
             catch(Exception ex)
             {
@@ -284,14 +342,26 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
             return _config.Symbol.Equals(symbol, StringComparison.InvariantCultureIgnoreCase) && _config.Exchange.Equals(exchange, StringComparison.InvariantCultureIgnoreCase);
         }
         
-        public void CloseAllPosition()
+        public void CloseAllPosition(StrategyStockStatus status)
         {
-            if (_oldOrderMode.HasValue)
+            try
             {
-                _kite.PlaceOrder(_config.Exchange, _config.Symbol, _oldOrderMode.Value == OrderMode.BUY ? OrderMode.SELL.ToString() : OrderMode.BUY.ToString(), Math.Abs(_currentOpenPosition).ToString(), Product: "MIS", OrderType: "MARKET");
+                if (_oldOrderMode.HasValue && _currentOpenPosition != 0)
+                {
+                    _kite.PlaceOrder(_config.Exchange, _config.Symbol, _oldOrderMode.Value == OrderMode.BUY ? OrderMode.SELL.ToString() : OrderMode.BUY.ToString(), Convert.ToInt32(Math.Abs(_currentOpenPosition)), Product: "MIS", OrderType: "MARKET");
+                }
             }
+            catch (Exception)
+            {
+                
+            }
+
             fileWather.EnableRaisingEvents = false;
             fileWather.Changed -= FileWather_Changed;
+            _currentOpenPosition = 0;
+            _countOfContiniousExecutionInOneDirection = 0;
+            _oldOrderMode = null;
+            Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, status.ToString());
         }
 
         /// <summary>
@@ -299,14 +369,16 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
         /// </summary>
         /// <param name="position"></param>
         /// <returns></returns>
-        public bool CheckMaxProfitLossAndClosePosition(Position position)
+        public bool CheckMaxProfitLossAndClosePosition(int quantity, decimal PNL)
         {
             try
             {
-                if ((position.PNL >= _config.MaxProfit && _config.MaxProfit != 0 ) || (position.PNL <= -(_config.MaxLoss) && _config.MaxLoss !=0))
+                _config.NetQuantity = quantity;
+                _config.UpdateMax();
+                if ((PNL >= _config.MaxProfit && _config.MaxProfit != 0 ) || (PNL <= -(_config.MaxLoss) && _config.MaxLoss !=0))
                 {
                     OrderMode mode = OrderMode.BUY;
-                    if (position.Quantity > 0)
+                    if (quantity > 0)
                     {
                         mode = OrderMode.SELL;
                     }
@@ -314,11 +386,11 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
                     {
                         mode = OrderMode.BUY;
                     }
-                    var status = _kite.PlaceOrder(_config.Exchange, _config.Symbol, mode.ToString(), Math.Abs(position.Quantity).ToString(), Product: "MIS", OrderType: "MARKET");
+                    var status = _kite.PlaceOrder(_config.Exchange, _config.Symbol, mode.ToString(), Convert.ToInt32(Math.Abs(quantity)), Product: "MIS", OrderType: "MARKET");
                     var orderPlacedSuccessfully = status.Any(s => s.Key.ToLower() == "status" && s.Value.ToLower() == "success");
                     if (orderPlacedSuccessfully)
                     {
-                        if (position.PNL > _config.MaxProfit)
+                        if (PNL > _config.MaxProfit)
                             Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, StrategyStockStatus.MaxProfitReached.ToString());
                         else
                             Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, StrategyStockStatus.MaxLossReached.ToString());
@@ -347,13 +419,13 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
             _config.MaxLoss = value;
         }
 
-        internal void SquareOffAllPositions()
+        internal void SquareOffAllPositions(int count)
         {
             try
             {
                 if (_oldOrderMode.HasValue)
                 {
-                    _kite.PlaceOrder(_config.Exchange, _config.Symbol, _oldOrderMode.Value == OrderMode.BUY ? OrderMode.SELL.ToString() : OrderMode.BUY.ToString(), Math.Abs(_currentOpenPosition).ToString(), Product: "MIS", OrderType: "MARKET");
+                    _kite.PlaceOrder(_config.Exchange, _config.Symbol, _oldOrderMode.Value == OrderMode.BUY ? OrderMode.SELL.ToString() : OrderMode.BUY.ToString(), count, Product: "MIS", OrderType: "MARKET");
                 }
             }
             catch (Exception)
@@ -361,5 +433,85 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
                 
             }
         }
+
+        internal void Reset()
+        {
+            fileWather.Changed -= FileWather_Changed;
+            fileWather.EnableRaisingEvents = false;
+        }
+
+        private OrderMode? IsEligibleToPlaceOrder(string signal, OrderMode? oldOrderMode)
+        {
+            if (_signalSettingInfo != null)
+            {
+                string seperator = string.IsNullOrEmpty(_signalSettingInfo.Seperator) ? _signalSettingInfo.Seperator.Trim() : ",";
+                int priceIndex = _signalSettingInfo.PriceIndex;
+
+                decimal priceBuffer = _signalSettingInfo.PriceBufferToAcceptOrder;
+                int timeIndex = _signalSettingInfo.TimeIndex;
+
+                var splitData = signal.Split(new string[] { seperator }, StringSplitOptions.RemoveEmptyEntries);
+
+                OrderMode mode = splitData[_signalSettingInfo.BuySellSignalIndex].Trim().ToLower().Equals("buy", StringComparison.InvariantCultureIgnoreCase) ? OrderMode.BUY : OrderMode.SELL;
+
+                if (oldOrderMode.HasValue && oldOrderMode.Value == mode)
+                {
+                    Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, "Current generated order is same as last order : " + mode.ToString());
+                    //MessageBox.Show("Current generated order is same as last order : " + mode.ToString());
+                    return null;
+                }
+
+                var price = Convert.ToDecimal(splitData[priceIndex]);
+
+                //Check Price Buffer
+                if (_config.LTP < (Math.Abs(price - priceBuffer)) || _config.LTP > (Math.Abs(price + priceBuffer)))
+                {
+                    Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, "Rejected because buffer price didn't match : " + "LTP:" + _config.LTP + " $ Price:" + price + " $PriceBuffer:" + priceBuffer + " $Start:" + Math.Abs(price - priceBuffer) + " $End:" + Math.Abs(price + priceBuffer));
+                    //MessageBox.Show("Rejected because buffer price didn't match : " + "LTP:"+_config.LTP+" $ Price:"+price + " $PriceBuffer:"+priceBuffer+" $Start:"+ Math.Abs(price - priceBuffer)+" $End:"+ Math.Abs(price + priceBuffer));
+                    return null;
+                }
+                try
+                {
+                    DateTime dt = DateTime.ParseExact(splitData[timeIndex], _signalSettingInfo.TimeFormat, System.Globalization.CultureInfo.InvariantCulture);
+                    var signalTimeSpan = dt.TimeOfDay;
+                    var signalTimeSpanMinutes = (signalTimeSpan.TotalMinutes + _signalSettingInfo.TimeDifferenceBetweenSystemAndSignal);
+
+                    var currentTimeSpanMinutes = DateTime.Now.TimeOfDay.TotalMinutes;
+
+                    if (signalTimeSpanMinutes < Math.Abs(currentTimeSpanMinutes - _signalSettingInfo.TimeBufferToTakeOrder) || currentTimeSpanMinutes > Math.Abs(signalTimeSpanMinutes + _signalSettingInfo.TimeBufferToTakeOrder))
+                    {
+                        Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, "Rejected because buffer time didn't match : " + "Current Time:" + DateTime.Now.TimeOfDay + " $ Generated Time:" + signalTimeSpan + " $ Buffer Time:" + TimeSpan.FromMinutes(signalTimeSpanMinutes));
+                        // MessageBox.Show("Rejected because buffer time didn't match : " + "Current Time:" + DateTime.Now.TimeOfDay + " $ Generated Time:" + signalTimeSpan + " $ Buffer Time:" + TimeSpan.FromMinutes(signalTimeSpanMinutes));
+                        return null;
+                    }
+
+                }
+                catch (Exception ex)
+                {
+                    Events.RaiseStatusChangedEvent(_config.Exchange, _config.Symbol, ex.Message + " " + splitData[timeIndex] + _signalSettingInfo.TimeFormat);
+                    return null;
+                    //MessageBox.Show(ex.Message + " " + splitData[timeIndex] + _signalSettingInfo.TimeFormat);
+                }
+                return mode;
+
+            }
+            else
+            {
+                var splitData = signal.Split(new string[] { ",", }, StringSplitOptions.RemoveEmptyEntries);
+                OrderMode mode = splitData[_signalSettingInfo.BuySellSignalIndex].Equals("buy", StringComparison.InvariantCultureIgnoreCase) ? OrderMode.BUY : OrderMode.SELL;
+
+                if (oldOrderMode.HasValue && oldOrderMode.Value == mode)
+                    return null;
+                else
+                    return mode;
+            }
+
+        }
+
+        internal void UpdateSettingInfo(SignalSettingInfo settingInfo)
+        {
+            _signalSettingInfo = settingInfo;
+        }
     }
+
 }

@@ -32,9 +32,9 @@ namespace Stock_Trade_Configuration
 
         private void UserConfigCheck_Loaded(object sender, RoutedEventArgs e)
         {
-            if (File.Exists(ViewModels.ConfigurationFileNames.UserSpecificFile))
+            if (File.Exists(ConfigurationFileNames.UserSpecificFile))
             {
-                var userConfig = XSerializer.Instance.GetConfiguration<StockTradeConfiguration.Models.UserInfo>(ViewModels.ConfigurationFileNames.UserSpecificFile);
+                var userConfig = XSerializer.Instance.GetConfiguration<StockTradeConfiguration.Models.UserInfo>(ConfigurationFileNames.UserSpecificFile);
                 txtSecret.Text = userConfig.SecretKey;
                 txtUserId.Text = userConfig.UserId;
                 txtApi.Text = userConfig.APIKey;
@@ -93,7 +93,7 @@ namespace Stock_Trade_Configuration
             ValidateLicenseKey(userInfo);
             if(userInfo.IsValidKey)
             {
-                XSerializer.Instance.SaveConfiguration<UserInfo>(ViewModels.ConfigurationFileNames.UserSpecificFile,userInfo);
+                XSerializer.Instance.SaveConfiguration<UserInfo>(ConfigurationFileNames.UserSpecificFile,userInfo);
                 LoginAuthentication window = new LoginAuthentication(userInfo);
                 window.Show();
                 this.Close();
@@ -102,6 +102,11 @@ namespace Stock_Trade_Configuration
             {
                 MessageBox.Show("Please update valid Key");
             }
+        }
+
+        private void btnExit_Click(object sender, RoutedEventArgs e)
+        {
+            Application.Current.Shutdown();
         }
     }
 }

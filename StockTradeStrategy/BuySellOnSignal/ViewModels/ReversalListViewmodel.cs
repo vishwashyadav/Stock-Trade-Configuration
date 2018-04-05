@@ -65,7 +65,18 @@ namespace StockTradeStrategy.BuySellOnSignal.ViewModels
 
         private void DeleteCommandExecute(object obj)
         {
-            
+            if(SelectedReversalConfig!=null)
+            {
+                System.Windows.Application.Current.Dispatcher.Invoke(() =>
+                {
+                    var result = System.Windows.MessageBox.Show("Are you sure want to delete selected Reversal Config?", "Confirmation", System.Windows.MessageBoxButton.YesNo, System.Windows.MessageBoxImage.Question);
+                    if(result == System.Windows.MessageBoxResult.Yes)
+                    {
+                        ReversalConfigs.Remove(SelectedReversalConfig);
+                        XSerializer.Instance.SaveConfiguration<ObservableCollection<ReversalConfig>>(ConfigFileNames.ReversalInforFileName, ReversalConfigs);
+                    }
+                });
+            }
         }
 
         private bool DeleteCommandCanExecute(object obj)

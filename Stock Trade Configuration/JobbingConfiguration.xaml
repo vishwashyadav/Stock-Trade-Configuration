@@ -164,7 +164,55 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
-                                            <TextBlock Text="{Binding Path=Margin}" VerticalAlignment="Center"></TextBlock>
+                                            <TextBlock VerticalAlignment="Center">
+                                                <TextBlock.Inlines>
+                                                    <Run Text="{Binding Path=Margin}" ></Run>
+                                                    <Run Text=" (" ></Run>
+                                                    <Run Text="{Binding Path=MarginType}" ></Run>
+                                                    <Run Text=")" ></Run>
+                                                </TextBlock.Inlines>
+                                            </TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            <GridViewColumn Header="Target Price">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=TargetPrice}" VerticalAlignment="Center">
+                                                
+                                            </TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+
+                            </GridViewColumn>
+                            <GridViewColumn Width="120" Header="Target Hit Count">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=TargetHitCount}" VerticalAlignment="Center"></TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+
+                            <GridViewColumn Width="120" Header="StopLoss Hit Count">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=StopLossHitCount}" VerticalAlignment="Center"></TextBlock>
+                                        </Border>
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
+                            
+                            <GridViewColumn Header="Stop Loss">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="Gray" BorderThickness=".5" Margin="-6,-3">
+                                            <TextBlock Text="{Binding Path=StopLossPrice}" VerticalAlignment="Center"></TextBlock>
                                         </Border>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

@@ -12,7 +12,7 @@ namespace StockTrade.Jobbing
     public class SimpleJobbing : JobbingStockBase
     {
         #region Override methods
-        public override void BuySellStock(LTP ltp)
+        public override void BuySellStock(Quote ltp)
         {
             bool shouldPlaceOrder = false;
             OrderMode orderMode = OrderMode.BUY;
@@ -34,7 +34,7 @@ namespace StockTrade.Jobbing
             if (shouldPlaceOrder)
             {
                 var price = lastPrice.GetNextValidPrice(orderMode == OrderMode.BUY ? false : true);
-                 this.PlaceOrder(orderMode.ToString(), StocksBuySellQuantityStart.ToString(), price.ToString());
+                 this.PlaceOrder(orderMode.ToString(), StocksBuySellQuantityStart, price);
                 CurrentPrice = lastPrice;
                 SaveData(orderMode, StocksBuySellQuantityStart, price);
             }

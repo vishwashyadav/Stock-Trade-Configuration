@@ -39,9 +39,9 @@ namespace Stock_Trade_Configuration
             _kite = kite;
             _stockSymbols = stockSymbols.Distinct().Select(s => s.DisplayName).ToArray();
             _stockSybolsHighLow = _stockSymbols.ToDictionary(key => key, value => new Tuple<decimal, decimal>(0, 0));
-            if (_isCancelled)
+            if (!_isCancelled)
             {
-                _isCancelled = false;
+                _isCancelled = true;
                 await CheckHighLowTick();
             }
         }
@@ -57,7 +57,7 @@ namespace Stock_Trade_Configuration
                     CheckHighLow();
 
                     Task.Delay(1000);
-                    if (_isCancelled)
+                    if (!_isCancelled)
                         break;
                 }
             });
@@ -67,14 +67,13 @@ namespace Stock_Trade_Configuration
         private Dictionary<string, decimal> _breakOutPrice = new Dictionary<string, decimal>();
         public void Stop()
         {
-            _isCancelled = true;
+            _isCancelled = false;
         }
 
         private void CheckHighLow()
         {
             try
             {
-               
                 var stockLastPrice = _kite.GetLTP(_stockSymbols);
                 foreach (var stockLTP in stockLastPrice)
                 {
@@ -86,8 +85,8 @@ namespace Stock_Trade_Configuration
                             continue;
                         }
 
-                        if (_breakOutPrice[stockLTP.Key] == stockLTP.Value.LastPrice)
-                            continue;
+                        //if (_breakOutPrice[stockLTP.Key] == stockLTP.Value.LastPrice)
+                          //  continue;
 
                         _breakOutPrice[stockLTP.Key] = stockLTP.Value.LastPrice;
                         var highLow = _stockSybolsHighLow[stockLTP.Key];

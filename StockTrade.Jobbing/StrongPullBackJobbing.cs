@@ -11,7 +11,6 @@ namespace StockTrade.Jobbing
     [JobbingType(Name = "String Pull Back Jobbing", index = 1)]
     public class StrongPullBackJobbing : JobbingStockBase
     {
-
         public double PullBackPercentage { get; set; }
 
         private int StocksCountToBuyOrCell()
@@ -26,7 +25,7 @@ namespace StockTrade.Jobbing
         }
 
         #region Override Methods
-        public override void BuySellStock(LTP ltp)
+        public override void BuySellStock(Quote ltp)
         {
             bool shouldPlaceOrder = false;
             OrderMode orderMode = OrderMode.BUY;
@@ -51,7 +50,7 @@ namespace StockTrade.Jobbing
                 int quantity = (OpenPositionsCount != 0 && LastOrderMode != orderMode) ? StocksCountToBuyOrCell() : StocksBuySellQuantityStart;
 
                 var price = lastPrice.GetNextValidPrice(orderMode == OrderMode.BUY ? false : true);
-                this.PlaceOrder(orderMode.ToString(), quantity.ToString(), price.ToString());
+                this.PlaceOrder(orderMode.ToString(), quantity, price);
                 CurrentPrice = lastPrice;
                 OpenPositionsCount = (OpenPositionsCount != 0 && LastOrderMode != orderMode) ? (OpenPositionsCount - quantity) : (OpenPositionsCount + quantity);
                 SaveData(orderMode, quantity, price);

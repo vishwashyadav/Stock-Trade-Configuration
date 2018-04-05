@@ -16,5 +16,36 @@
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment"  Value="Stretch"/>
         </Style>
+        <Style TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="#CCC" BorderThickness="2" BorderBrush="#888888" Width="{TemplateBinding Width}" MinWidth="70" Padding="3" Height="30">
+                            <!--<Border.Background>
+                                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                        <GradientStop Color="#ffffff" Offset="0"/>
+                                        <GradientStop Color="#999999" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>-->
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Opacity" Value="0.7"></Setter>
+                                    <Style.Triggers>
+                                        <Trigger Property="Border.IsMouseOver" Value="True">
+                                            <Setter Property="Opacity" Value="1"></Setter>
+                                        </Trigger>
+                                        <Trigger Property="Button.IsEnabled" Value="False">
+                                            <Setter Property="Opacity" Value="0.3"></Setter>
+                                        </Trigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Foreground="Black" FontWeight="SemiBold" Text="{TemplateBinding Content}" VerticalAlignment="Center" HorizontalAlignment="Center"></TextBlock>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Application.Resources>
 </Application>

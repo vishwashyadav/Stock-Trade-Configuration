@@ -17,8 +17,9 @@ namespace StockTrade.Jobbing
             MaxOpenPosition = 5*StocksBuySellQuantityStart;
         }
         #region Override methods
-        public override void BuySellStock(LTP ltp)
+        public override void BuySellStock(Quote ltp)
         {
+            
             bool shouldPlaceOrder = false;
             OrderMode orderMode = OrderMode.BUY;
             var lastPrice = ltp.LastPrice;
@@ -39,7 +40,7 @@ namespace StockTrade.Jobbing
             if (shouldPlaceOrder && !(LastOrderMode==orderMode && OpenPositionsCount >= MaxOpenPosition) )
             {
                 var price = lastPrice.GetNextValidPrice(orderMode == OrderMode.BUY ? false : true);
-                this.PlaceOrder(orderMode.ToString(), StocksBuySellQuantityStart.ToString(), price.ToString());
+                this.PlaceOrder(orderMode.ToString(), StocksBuySellQuantityStart, price);
 
                 CurrentPrice = lastPrice;
                 OpenPositionsCount = (OpenPositionsCount != 0 && LastOrderMode != orderMode) ?

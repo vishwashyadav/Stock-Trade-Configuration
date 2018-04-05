@@ -18,16 +18,66 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
         private decimal _min;
         private decimal _max;
         private decimal _absoluteProfitLoss;
+        private decimal _ltp;
         private string _profitLossStatus;
         private StrategyStockStatus _status;
+        private decimal _priceBuffer;
         private int _openPosition;
         private bool _maxProfitEditMode;
         private bool _maxLossEditMode;
         private decimal _maxProfit;
         private decimal _maxLoss;
+        private decimal _maxProfitEdit;
+        private decimal _maxLossEdit;
+        private decimal _tickProfit;
+        private decimal _tickProfitEdit;
+        private string _debugStatus;
         #endregion
-        public decimal MaxProfitEdit { get; set; }
-        public decimal MaxLossEdit { get; set; }
+        public string DebugStatus
+        {
+            get { return _debugStatus; }
+            set { _debugStatus = value; OnPropertyChanged("DebugStatus"); }
+        }
+        public decimal PriceBuffer
+        {
+            get { return _priceBuffer; }
+            set { _priceBuffer = value; OnPropertyChanged("PriceBuffer"); }
+        }
+        public decimal TrailingStopLoss { get; set; }
+        public decimal SellValue { get; set; }
+        public decimal BuyValue { get; set; }
+        public int? NetQuantity { get; set; }
+        public decimal Multiplier { get; set; } 
+        public TimeSpan StartTime { get; set; }
+        public decimal LTP
+        {
+            get { return _ltp; }
+            set { _ltp = value; OnPropertyChanged("LTP"); }
+        }
+        public decimal TickProfitEdit
+        {
+            get { return _tickProfitEdit; }
+            set { _tickProfitEdit = value; OnPropertyChanged("TickProfitEdit"); }
+        }
+        public decimal TickProfit
+        {
+            get { return _tickProfit; }
+            set { _tickProfit = value; OnPropertyChanged("TickProfit"); }
+        }
+        public SignalProfitType SignalProfitType { get; set; }
+        public int ContractSize { get; set; }
+        [XmlIgnore]
+        public decimal MaxProfitEdit
+        {
+            get { return _maxProfitEdit; }
+            set { _maxProfitEdit = value; OnPropertyChanged("MaxProfitEdit"); }
+        }
+        [XmlIgnore]
+        public decimal MaxLossEdit
+        {
+            get { return _maxLossEdit; }
+            set { _maxLossEdit = value; OnPropertyChanged("MaxLossEdit"); }
+        }
         [XmlIgnore]
         public bool MaxProfitEditMode
         {
@@ -45,8 +95,30 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
         public int OpenPosition
         {
             get { return _openPosition; }
-            set { _openPosition = value; OnPropertyChanged("OpenPosition"); }
+            set
+            {
+                if (_openPosition != value)
+                {
+                    _openPosition = value;
+                    UpdateMax();
+                    OnPropertyChanged("OpenPosition");
+
+                }
+            }
         }
+
+        public void UpdateMax()
+        {
+            if (SignalProfitType == SignalProfitType.TickProfit && Status == StrategyStockStatus.Running)
+            {
+                if (NetQuantity.HasValue)
+                {
+                    MaxProfit = Math.Abs(NetQuantity.Value) * ((Multiplier) * TickProfit);
+                    UpdateMinMax(true);
+                }
+            }
+        }
+
         [XmlIgnore]
         public StrategyStockStatus Status
         {
@@ -88,7 +160,7 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
             get { return _maxLoss; }
             set { _maxLoss = value; OnPropertyChanged("MaxLoss"); }
         }
-
+        public decimal LastTrailPoint { get; set; }
         [XmlIgnore]
         public decimal CurrentProfitLoss
         {
@@ -97,6 +169,11 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
         }
         public string DataFileExtesnion { get; set; }
         public List<ReversalInfo> ReversalInfoes { get; set; }
+
+        public BuySellOnSignalSymbolConfig()
+        {
+          
+        }
 
         private void FileWatcher_FileContentChangedEvent(string filePath)
         {
@@ -121,7 +198,7 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
             }
         }
 
-        private void UpdateMinMax()
+        public void UpdateMinMax(bool updateForce=false)
         {
             var status="";
             if(CurrentProfitLoss>0)
@@ -135,7 +212,7 @@ namespace StockTradeStrategy.BuySellOnSignal.Models
                 
             }
 
-            if (status != _profitLossStatus)
+            if (status != _profitLossStatus || updateForce)
             {
                 if(status =="profit")
                 {

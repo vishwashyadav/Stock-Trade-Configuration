@@ -1,0 +1,105 @@
+﻿<UserControl x:Class="StockTradeStrategy.RangeBreakOutStrategy.Views.RangeBreakoutConfigView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:StockTradeStrategy.RangeBreakOutStrategy.Views"
+             mc:Ignorable="d" 
+             xmlns:viewmodel="clr-namespace:StockTradeStrategy.RangeBreakOutStrategy.Viewmodels"
+             d:DesignHeight="300" d:DesignWidth="600">
+    <UserControl.DataContext>
+        <viewmodel:CandleRangeBreakoutConfigViewModel></viewmodel:CandleRangeBreakoutConfigViewModel>
+    </UserControl.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition></RowDefinition>
+        </Grid.RowDefinitions>
+        <Expander IsExpanded="True" Header="Stock Find Parameters">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.Resources>
+                    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                        <Setter Property="Width" Value="120"></Setter>
+                        <Setter Property="HorizontalAlignment" Value="Left"></Setter>
+                    </Style>
+                    
+                </Grid.Resources>
+                <StackPanel Margin="5">
+                    <TextBlock Text="Min Stock Price"></TextBlock>
+                    <TextBox Text="{Binding Path=PreOpenStockSearchParameter.MinStockPrice}"></TextBox>
+                </StackPanel>
+                <StackPanel Margin="5" Grid.Column="1">
+                    <TextBlock Text="Max Stock Price"></TextBlock>
+                    <TextBox Text="{Binding Path=PreOpenStockSearchParameter.MaxStockPrice}"></TextBox>
+                </StackPanel>
+
+                <StackPanel Margin="5" Grid.Row="1">
+                    <TextBlock Text="Gapup Min (%)"></TextBlock>
+                    <TextBox Text="{Binding Path=PreOpenStockSearchParameter.MinGapupPercentage}"></TextBox>
+                </StackPanel>
+                <StackPanel Margin="5" Grid.Row="1" Grid.Column="1">
+                    <TextBlock Text="Gapup Max (%)"></TextBlock>
+                    <TextBox Text="{Binding Path=PreOpenStockSearchParameter.MaxGapupPercentage}"></TextBox>
+                </StackPanel>
+
+                <StackPanel Margin="5" Grid.Row="0" Grid.Column="2">
+                    <TextBlock Text="Candle Duration"></TextBlock>
+                    <ComboBox ItemsSource="{Binding Path=CandleDuration}" IsEditable="True" DisplayMemberPath="Key" SelectedIndex="1" SelectedValue="{Binding Path=SelectedCandleDuration}"></ComboBox>
+                </StackPanel>
+                <StackPanel Margin="5" Grid.Row="1" Grid.Column="2">
+                    <TextBlock Text="No. Of Candle"></TextBlock>
+                    <TextBox Text="{Binding Path=PreOpenStockSearchParameter.NumberOfCandle}"></TextBox>
+                </StackPanel>
+
+                <StackPanel Margin="5" Grid.Row="0" Grid.Column="3">
+                    <TextBlock Text="Profit Margin(%)"></TextBlock>
+                    <TextBox Text="{Binding Path=PreOpenStockSearchParameter.ProfitMarginPercentage, Mode=TwoWay, StringFormat={}{0:F2}}" ></TextBox>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="5" Grid.Row="1" Grid.Column="3">
+                    <StackPanel>
+                    <TextBlock Text="Multiplier"></TextBlock>
+                    <ComboBox ItemsSource="{Binding Path=PreOpenStockSearchParameter.Multipliers}" SelectedItem="{Binding Path=PreOpenStockSearchParameter.SelectedMultiplier}" SelectedIndex="2" IsEditable="True" Width="60" ></ComboBox>
+                    </StackPanel>
+                    <StackPanel>
+                        <TextBlock Text="Intial Qty"></TextBlock>
+                        <TextBox Width="60" Text="{Binding Path=PreOpenStockSearchParameter.InitialQuantity}"></TextBox>
+                    </StackPanel>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4" Grid.RowSpan="2" VerticalAlignment="Bottom">
+                    <Button Margin="5" Content="Find Stocks" Grid.Column="2" Command="{Binding Path=SearchStockCommand}" VerticalAlignment="Center"></Button>
+                    <Button Margin="5" Content="Start" Command="{Binding Path=StartCommand}" Grid.Column="2" VerticalAlignment="Center"></Button>
+                </StackPanel>
+            </Grid>
+        </Expander>
+        <DataGrid ItemsSource="{Binding Path=Stocks, UpdateSourceTrigger=PropertyChanged}" AutoGenerateColumns="False" Grid.Row="1">
+            <DataGrid.Columns>
+                <DataGridTextColumn  Header="Trading Symbol" Binding="{Binding Path=TradingSymbol, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn IsReadOnly="True" Header="PreOpen Price" Binding="{Binding Path=PreOpenPrice, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn IsReadOnly="True" Header="LTP" Binding="{Binding Path=LTP, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Buy Breakout" Binding="{Binding Path=BuyBreakOutPrice, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Sell Breakout" Binding="{Binding Path=SellBreakOutPrice, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Change(%)" IsReadOnly="True" Binding="{Binding Path=ChangePercentage, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Profit Margin(%)"  Binding="{Binding Path=ProfitMargin, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                
+                <DataGridTextColumn  Header="Status" Binding="{Binding Path=OrderStatus, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn  Header="Target" Binding="{Binding Path=TargetPrice, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn  Header="StopLoss" Binding="{Binding Path=StopLoss, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn IsReadOnly="True" Header="ParentOrderId" Binding="{Binding Path=ParentOrderId, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+                <DataGridTextColumn IsReadOnly="True" Header="TargetOrderId" Binding="{Binding Path=TargetOrderId, UpdateSourceTrigger=PropertyChanged}"></DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</UserControl>

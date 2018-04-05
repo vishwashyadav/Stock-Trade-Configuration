@@ -49,7 +49,7 @@ namespace StockTradeConfiguration.Data
             return null;
         }
 
-        public static IEnumerable<OpenBreakOutConfig> GetStockSymbolsWithNSEOpenPrice(string filePath, IEnumerable<string> stringsToReplace, int changeIndex, int priceIndex, decimal gapUpMin, decimal gapUpMax, decimal stockPriceMin, decimal stockPriceMax)
+        public static IEnumerable<KeyValuePair<string,decimal>> GetStockSymbolsWithNSEOpenPrice(string filePath, IEnumerable<string> stringsToReplace, int changeIndex, int priceIndex, decimal gapUpMin, decimal gapUpMax, decimal stockPriceMin, decimal stockPriceMax)
         {
             try
             {
@@ -78,7 +78,7 @@ namespace StockTradeConfiguration.Data
 
                         }
                     }
-                    return stocks.Where(s => (Math.Abs(s.Value.Item1) >= gapUpMin && Math.Abs(s.Value.Item1) <= gapUpMax) && (Math.Abs(s.Value.Item2) >= stockPriceMin && Math.Abs(s.Value.Item2) <= stockPriceMax)).Select(s => new OpenBreakOutConfig() { Exchange = "NSE", Symbol = s.Key, PreOpenMarketOpenPrice = s.Value.Item2 });
+                    return stocks.Where(s => (Math.Abs(s.Value.Item1) >= gapUpMin && Math.Abs(s.Value.Item1) <= gapUpMax) && (Math.Abs(s.Value.Item2) >= stockPriceMin && Math.Abs(s.Value.Item2) <= stockPriceMax)).Select(s => new KeyValuePair<string,decimal>(s.Key, s.Value.Item2 ));
                 }
             }
             catch (Exception)

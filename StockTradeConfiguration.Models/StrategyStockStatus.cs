@@ -12,6 +12,9 @@ namespace StockTradeConfiguration.Models
         Running,
         MaxLossReached,
         MaxProfitReached,
-        ManuallySquaredOff
+        ManuallySquaredOff,
+        DayProfitReached,
+        DayLossReached,
+        Stopped
     }
 }

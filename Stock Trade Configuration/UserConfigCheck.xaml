@@ -65,6 +65,7 @@
                 </StackPanel>
 
                 <Button HorizontalAlignment="Left" Margin="10" Background="#FF0FC5BD" Style="{x:Null}" Height="30" Width="120" Foreground="White"  x:Name="btnSave" Grid.Row="4" Content="Validate and Save" Click="btnSave_Click"/>
+                <Button HorizontalAlignment="Left" Margin="10" Background="#FF0FC5BD" Style="{x:Null}" Height="30" Width="120" Foreground="White"  x:Name="btnExit" Grid.Row="4" Grid.Column="1" Content="Exit" Click="btnExit_Click"/>
             </Grid>
         </Grid>
     </Border>

@@ -1,9 +1,11 @@
 ﻿using Microsoft.Win32;
 using StockTradeConfiguration.Data;
+using StockTradeConfiguration.Models;
 using StockTradeConfigurationCommon;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +33,13 @@ namespace StockTradeStrategy.BuySellOnSignal.Views
         {
             InitializeComponent();
             _dataContext = this.DataContext as ViewModels.BuySellSignalConfigurationViewmodel;
+            LoadSavedFilePath();
+        }
+
+        private void BuySellSignalConfiguration_Unloaded(object sender, RoutedEventArgs e)
+        {
+           // var file = new KeyValue() { Key = txtFolderPath.Name, Value = txtFolderPath.Text };
+          //  XSerializer.Instance.SaveConfiguration<object>(txtFolderPath.Name + ".txt", file);
         }
 
         private void txtFolderPath_Click(object sender, RoutedEventArgs e)
@@ -67,6 +76,7 @@ namespace StockTradeStrategy.BuySellOnSignal.Views
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
+   
             if (_dataContext.BuySellOnSignalSymbolConfigs != null && _dataContext.BuySellOnSignalSymbolConfigs.Any())
             {
                 SaveFileDialog dialog = new SaveFileDialog();
@@ -109,6 +119,74 @@ namespace StockTradeStrategy.BuySellOnSignal.Views
                 }
             }
 
+        }
+
+        private void LoadSavedFilePath()
+        {
+            Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                if (File.Exists("FilePath.txt"))
+                {
+                    var keyValue = XSerializer.Instance.GetConfiguration<KeyValue>("FilePath.txt");
+                    txtFolderPath.Text = keyValue.Value; 
+                }
+            });
+        }
+
+        private void txtFolderPath_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Application.Current.Dispatcher.InvokeAsync(() =>
+            {
+                XSerializer.Instance.SaveConfiguration<KeyValue>("FilePath.txt", new KeyValue() { Key = "FilePath", Value = txtFolderPath.Text});
+            });
+        }
+
+        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            (sender as TextBox).ScrollToEnd();
+        }
+
+        private void btnPartialSqureOff_Click(object sender, RoutedEventArgs e)
+        {
+            
+            Button btn = sender as Button;
+            Models.BuySellOnSignalSymbolConfig config = btn.DataContext as Models.BuySellOnSignalSymbolConfig;
+
+            Predicate<object> validator = (obj) =>
+            {
+                int count = 0;
+                if (string.IsNullOrEmpty(Convert.ToString(obj)))
+                {
+                    throw new Exception("Number of position should not be empty");
+                }
+                else if(!int.TryParse(Convert.ToString(obj), out count))
+                {
+                    throw new Exception("Invalid input");
+                }
+                else if (int.TryParse(Convert.ToString(obj), out count) && (count > Math.Abs(config.OpenPosition) || count<0))
+                {
+                    throw new Exception(string.Format("Value should be in range from {0} to {1}",1,Math.Abs(config.OpenPosition)));
+                }
+                else if (int.TryParse(Convert.ToString(obj), out count) && count ==0)
+                {
+                    throw new Exception("Value should not be zero");
+                }
+                return true;
+            };
+            string title = "No of position you want to square off.";
+            UserInputWindow window = new UserInputWindow(title, "No of Position", "Ok", validator);
+            window.ShowDialog();
+            if(window.Result == MessageBoxResult.OK)
+            {
+                _dataContext.SquareOffPosition(config, Convert.ToInt32(window.Value));
+            }
+        }
+
+        private void btnAppSetting_Click(object sender, RoutedEventArgs e)
+        {
+            SingalParameterSetting setting = new SingalParameterSetting();
+            setting.ShowDialog();
+            _dataContext.LoadAppSetting();
         }
     }
 }

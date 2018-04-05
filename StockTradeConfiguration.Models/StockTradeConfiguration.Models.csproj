@@ -31,6 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -41,9 +42,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApiClient.cs" />
+    <Compile Include="APIs\APIAttribute.cs" />
+    <Compile Include="APIs\APIRequiredPropertyAttribute.cs" />
+    <Compile Include="APIs\ZerodhaAPI.cs" />
+    <Compile Include="ConfigurationFileNames.cs" />
     <Compile Include="DelegateCommand.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Extension\AssemblyExtensions.cs" />
     <Compile Include="FileWatcher.cs" />
     <Compile Include="Instrument.cs" />
     <Compile Include="JobbingStatus.cs" />
@@ -62,12 +68,15 @@
     <Compile Include="StockSymbols.cs" />
     <Compile Include="StockTimeZone.cs" />
     <Compile Include="StrategyStockStatus.cs" />
+    <Compile Include="StockSubscribeMode.cs" />
+    <Compile Include="TargetStatus.cs" />
+    <Compile Include="TimeZoneStatus.cs" />
     <Compile Include="TradeType.cs" />
     <Compile Include="UserInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KiteConnect\KiteConnect.csproj">
-      <Project>{F905A2BB-2280-463E-A12B-EFB66A818F4F}</Project>
+    <ProjectReference Include="..\..\..\..\..\..\Users\H9XR\Downloads\dotnetkiteconnect-kite3\KiteConnect\KiteConnect.csproj">
+      <Project>{F5F75AD6-E72F-44DA-8D3F-1360B000C684}</Project>
       <Name>KiteConnect</Name>
     </ProjectReference>
   </ItemGroup>

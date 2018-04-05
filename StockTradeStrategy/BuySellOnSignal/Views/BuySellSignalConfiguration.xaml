@@ -7,11 +7,19 @@
              xmlns:local="clr-namespace:StockTradeStrategy.BuySellOnSignal.Views"
              xmlns:vm="clr-namespace:StockTradeStrategy.BuySellOnSignal.ViewModels"
              mc:Ignorable="d" 
+             xmlns:mod="clr-namespace:StockTradeStrategy.BuySellOnSignal.Models"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              d:DesignHeight="400" d:DesignWidth="700">
     <UserControl.DataContext>
         <vm:BuySellSignalConfigurationViewmodel></vm:BuySellSignalConfigurationViewmodel>
     </UserControl.DataContext>
     <UserControl.Resources>
+        <ObjectDataProvider x:Key="profitMarginType" MethodName="GetValues"
+                            ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="mod:SignalProfitType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
         <converter:MaxProfitLossToText x:Key="MaxProfitLossToText"></converter:MaxProfitLossToText>
         <converter:ProfitLossToBackgroundConverter x:Key="ProfitLossToBackgroundConverter"></converter:ProfitLossToBackgroundConverter>
     </UserControl.Resources>
@@ -19,118 +27,168 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto"></RowDefinition>
             <RowDefinition></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
             <ColumnDefinition Width="auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
         <ScrollViewer HorizontalAlignment="Left" MinWidth="650" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-            <GroupBox HorizontalAlignment="Left"  Header="Buy Sell Signal Configuration">
+            <Expander IsExpanded="True" HorizontalAlignment="Left"  Header="Buy Sell Signal Configuration">
                 <Grid>
-                    <Grid.Resources>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Margin" Value="5"></Setter>
-                            <Setter Property="Width" Value="120"></Setter>
-                        </Style>
-                        <Style TargetType="ComboBox">
-                            <Setter Property="IsEditable" Value="True"></Setter>
-                        </Style>
-                    </Grid.Resources>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto"></RowDefinition>
-                        <RowDefinition Height="auto"></RowDefinition>
-                        <RowDefinition Height="auto"></RowDefinition>
-                    </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
-                        <ColumnDefinition Width="*"></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
+                        <ColumnDefinition></ColumnDefinition>
                     </Grid.ColumnDefinitions>
-                    <Grid Margin="3" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Stretch">
+                    <Grid>
+                        <Grid.Resources>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Margin" Value="5"></Setter>
+                                <Setter Property="Width" Value="120"></Setter>
+                            </Style>
+                            <Style TargetType="ComboBox">
+                                <Setter Property="IsEditable" Value="True"></Setter>
+                            </Style>
+                        </Grid.Resources>
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto"></RowDefinition>
                             <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
                         </Grid.RowDefinitions>
-                        <TextBlock Text="Reversal Config"></TextBlock>
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                                <ColumnDefinition Width="auto"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <ComboBox SelectedItem="{Binding Path=SelectedReversalConfig,UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Path=ReversalConfigurations, UpdateSourceTrigger=PropertyChanged}" SelectedIndex="0" DisplayMemberPath="Name"  Width="120"></ComboBox>
-                            <Button x:Name="btnReverConfig" Margin="3,0" Content="Add/Edit Config" Click="btnReverConfig_Click" Grid.Column="1"></Button>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="140"></ColumnDefinition>
+                            <ColumnDefinition Width="140"></ColumnDefinition>
+                            <ColumnDefinition Width="140"></ColumnDefinition>
+                            <ColumnDefinition Width="*"></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid Margin="3" Grid.Column="3" Grid.Row="1" HorizontalAlignment="Stretch">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"></RowDefinition>
+                                <RowDefinition Height="auto"></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Reversal Config"></TextBlock>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <ComboBox SelectedItem="{Binding Path=SelectedReversalConfig,UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding Path=ReversalConfigurations, UpdateSourceTrigger=PropertyChanged}" SelectedIndex="0" DisplayMemberPath="Name"  Width="120"></ComboBox>
+                                <Button x:Name="btnReverConfig" Margin="3,0" Content="Add/Edit Config" Click="btnReverConfig_Click" Grid.Column="1"></Button>
+                            </Grid>
                         </Grid>
-                    </Grid>
-                    <Button Content="Add" Command="{Binding AddCommand}" Grid.Column="4" Grid.Row="2" Width="70" Height="27" HorizontalAlignment="Right"></Button>
-                    <StackPanel Grid.Column="0" Grid.Row="0">
-                        <TextBlock Text="Exchange:"></TextBlock>
-                        <ComboBox ItemsSource="{Binding Path=Exchanges, UpdateSourceTrigger=PropertyChanged}" SelectedIndex="0" SelectedItem="{Binding Path=SelectedExchange, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
-                    </StackPanel>
+                        <Button Content="Add" Command="{Binding AddCommand}" Grid.Column="4" Grid.Row="2" Width="70" Height="27" HorizontalAlignment="Right"></Button>
+                        <StackPanel Grid.Column="0" Grid.Row="0">
+                            <TextBlock Text="Exchange:"></TextBlock>
+                            <ComboBox ItemsSource="{Binding Path=Exchanges, UpdateSourceTrigger=PropertyChanged}" SelectedIndex="0" SelectedItem="{Binding Path=SelectedExchange, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
+                        </StackPanel>
 
-                    <StackPanel Grid.Column="1" Grid.Row="0">
+                        <StackPanel Grid.Column="1" Grid.Row="0">
 
-                        <TextBlock Text="Symbol:"></TextBlock>
-                        <ComboBox SelectedIndex="0" SelectedItem="{Binding Path=SelectedInstrument}" ItemsSource="{Binding Path=Instruments, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Column="2" Grid.Row="0">
-                        <TextBlock Text="Lot Size:"></TextBlock>
-                        <TextBox IsReadOnly="True" Text="{Binding Path=SelectedInstrument.LotSize, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                    </StackPanel>
-                    
-                    <StackPanel Grid.Column="3" HorizontalAlignment="Left" Grid.Row="0">
-                        <TextBlock Text="Local Symbol Name:"></TextBlock>
-                        <TextBox Text="{Binding Path=MappedSymbolName, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                    </StackPanel>
-                    <StackPanel Grid.Column="0" Grid.Row="1">
-                        <TextBlock Text="Profit Tick:"></TextBlock>
-                        <TextBox></TextBox>
-                    </StackPanel>
-                    <StackPanel Grid.Column="1" Grid.Row="1">
-                        <TextBlock Text="Max Profit:"></TextBlock>
-                        <TextBox Text="{Binding Path=MaxProfit}"></TextBox>
-                    </StackPanel>
+                            <TextBlock Text="Symbol:"></TextBlock>
+                            <ComboBox SelectedIndex="0" SelectedItem="{Binding Path=SelectedInstrument}" ItemsSource="{Binding Path=Instruments, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
+                        </StackPanel>
 
-                    <StackPanel Grid.Column="2" Grid.Row="1">
-                        <TextBlock Text="Max Loss:"></TextBlock>
-                        <TextBox Text="{Binding Path=MaxLoss}"></TextBox>
-                    </StackPanel>
+                        <StackPanel Grid.Column="2" Grid.Row="0">
+                            <TextBlock Text="Lot Size:"></TextBlock>
+                            <TextBox IsReadOnly="True" Text="{Binding Path=SelectedInstrument.LotSize, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
 
-                    <StackPanel Grid.Column="0" Grid.Row="2">
-                        <TextBlock Text="File Format:"></TextBlock>
-                        <ComboBox ItemsSource="{Binding Path=FileFormats}" SelectedIndex="0" SelectedItem="{Binding Path=SelectedFileFormat, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
-                    </StackPanel>
+                        <StackPanel Grid.Column="3" HorizontalAlignment="Left" Grid.Row="0">
+                            <TextBlock Text="Local Symbol Name:"></TextBlock>
+                            <TextBox Text="{Binding Path=MappedSymbolName, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                        </StackPanel>
+                        <StackPanel Grid.Column="0" Grid.Row="1">
+                            <TextBlock Text="Profit Tick:"></TextBlock>
+                            <ComboBox ItemsSource="{Binding Source={StaticResource profitMarginType}}" SelectedIndex="0" SelectedItem="{Binding Path=SignalProfitType}"></ComboBox>
+                        </StackPanel>
+                       
+                        <StackPanel Grid.Column="1" Grid.Row="1" >
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel" BasedOn="{StaticResource {x:Type StackPanel}}">
+                                    <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=SignalProfitType, UpdateSourceTrigger=PropertyChanged}" Value="Absolute">
+                                            <Setter Property="Visibility" Value="Visible"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <TextBlock Text="Max Profit:"></TextBlock>
+                            <TextBox Text="{Binding Path=MaxProfit, Mode=TwoWay, StringFormat={}{0:F2}}" ></TextBox>
+                        </StackPanel>
 
-                    <Grid Margin="5" HorizontalAlignment="Stretch" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="2">
-                        <Grid.RowDefinitions>
-                            <RowDefinition></RowDefinition>
-                            <RowDefinition></RowDefinition>
-                        </Grid.RowDefinitions>
-                        <TextBlock Text="Folder Path:"></TextBlock>
-                        <Grid Grid.Row="1">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"></ColumnDefinition>
-                                <ColumnDefinition Width="auto"></ColumnDefinition>
-                            </Grid.ColumnDefinitions>
-                            <TextBox x:Name="txtFolderPath" Text="{Binding Path=FolderPath, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                            <Button x:Name="btnFolderPath" Click="txtFolderPath_Click" Grid.Column="1" Width="70" Content="Browse..."></Button>
+                           <StackPanel Grid.Column="1" Grid.Row="1">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel" BasedOn="{StaticResource {x:Type StackPanel}}">
+                                    <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=SignalProfitType, UpdateSourceTrigger=PropertyChanged}" Value="TickProfit">
+                                            <Setter Property="Visibility" Value="Visible"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <TextBlock Text="Tick Profit:"></TextBlock>
+                            <TextBox Text="{Binding Path=TickProfit , Mode=TwoWay, StringFormat={}{0:F2}}"></TextBox>
+                        </StackPanel>
+
+
+                        <StackPanel Grid.Column="2" Grid.Row="1">
+
+                            <TextBlock Text="Max Loss:"></TextBlock>
+                            <TextBox Text="{Binding Path=MaxLoss , Mode=TwoWay, StringFormat={}{0:F2}}"></TextBox>
+                        </StackPanel>
+
+                        
+                        <StackPanel Grid.Column="0" Grid.Row="2">
+                            <TextBlock Text="File Format:"></TextBlock>
+                            <ComboBox ItemsSource="{Binding Path=FileFormats}" SelectedIndex="1" SelectedItem="{Binding Path=SelectedFileFormat, UpdateSourceTrigger=PropertyChanged}"></ComboBox>
+                        </StackPanel>
+
+                        <Grid Margin="5" HorizontalAlignment="Stretch" Grid.Column="1" Grid.Row="2">
+                            <Grid.RowDefinitions>
+                                <RowDefinition></RowDefinition>
+                                <RowDefinition></RowDefinition>
+                            </Grid.RowDefinitions>
+                            <TextBlock Text="Folder Path:"></TextBlock>
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"></ColumnDefinition>
+                                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="txtFolderPath" TextChanged="txtFolderPath_TextChanged" Text="{Binding Path=FolderPath, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                                <Button x:Name="btnFolderPath" Click="txtFolderPath_Click" Grid.Column="1" Width="70" Content="Browse..."></Button>
+                            </Grid>
                         </Grid>
+
+                        <StackPanel HorizontalAlignment="Left" Grid.Column="2" Grid.Row="3">
+                            <TextBlock Text="Trailing StopLoss:"></TextBlock>
+                            <TextBox Text="{Binding Path=TrailingStopLoss , Mode=TwoWay, StringFormat={}{0:F2}}"></TextBox>
+                        </StackPanel>
+
+                        <StackPanel HorizontalAlignment="Left" Grid.Column="3" Grid.Row="3">
+                            <TextBlock Text="Start Time:"></TextBlock>
+                            <TextBox Text="{Binding Path=StartTime , Mode=TwoWay}"></TextBox>
+                        </StackPanel>
                     </Grid>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
+                        <Button Content="App Setting" Margin="5" x:Name="btnAppSetting" Click="btnAppSetting_Click"></Button>
+                        <Button Content="Save as Template" Margin="5" Click="Button_Click_1"></Button>
+                        <Button Content="Load from Template" Margin="5" Click="Button_Click_2"></Button>
+                    </StackPanel>
 
                 </Grid>
-            </GroupBox>
+               
+            
+            </Expander>
         </ScrollViewer>
-        <StackPanel Grid.Column="1" VerticalAlignment="Bottom">
-            <Button Content="Save as Template" Margin="5" Click="Button_Click_1"></Button>
-            <Button Content="Load from Template" Margin="5" Click="Button_Click_2"></Button>
-        </StackPanel>
-        <GroupBox Grid.ColumnSpan="2" Header="Configured Scrip" Grid.Row="1" Margin="5">
-            <ScrollViewer  VerticalScrollBarVisibility="Auto">
+        <GroupBox Grid.ColumnSpan="3" Header="Configured Scrip" Grid.Row="1" Margin="5">
+            <ScrollViewer  VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
                 <ItemsControl Background="White" ItemsSource="{Binding Path=BuySellOnSignalSymbolConfigs}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border Margin="3" BorderThickness="10,0.5" BorderBrush="{Binding Path=CurrentProfitLoss, Converter={StaticResource ProfitLossToBackgroundConverter}}" Height="160"  Background="WhiteSmoke">
+                            <Border Margin="3" BorderThickness="10,0.5" BorderBrush="{Binding Path=CurrentProfitLoss, Converter={StaticResource ProfitLossToBackgroundConverter}}" Background="WhiteSmoke">
                                 <StackPanel Margin="5">
                                     <TextBlock FontWeight="SemiBold" FontSize="14">
                                         <TextBlock.Inlines>
@@ -158,10 +216,16 @@
                                                     </Style>
                                                 </TextBlock.Style>
                                         </TextBlock>
-                                            <TextBox Width="45" Text="{Binding Path=MaxProfitEdit, UpdateSourceTrigger=PropertyChanged}">
+                                            <TextBox Width="45" >
                                                 <TextBox.Style>
                                                     <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                                                         <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Path=SignalProfitType, UpdateSourceTrigger=PropertyChanged}" Value="Absolute">
+                                                                <Setter Property="Text" Value="{Binding Path=MaxProfitEdit, Mode=TwoWay, StringFormat={}{0:F2}}"></Setter>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Path=SignalProfitType, UpdateSourceTrigger=PropertyChanged}" Value="TickProfit">
+                                                                <Setter Property="Text" Value="{Binding Path=TickProfitEdit, Mode=TwoWay, StringFormat={}{0:F2}}"></Setter>
+                                                            </DataTrigger>
                                                             <DataTrigger Binding="{Binding Path=MaxProfitEditMode, UpdateSourceTrigger=PropertyChanged}" Value="False">
                                                                 <Setter Property="Visibility" Value="Collapsed"></Setter>
                                                             </DataTrigger>
@@ -202,7 +266,7 @@
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-                                                <TextBox Width="45" Text="{Binding Path=MaxLossEdit, UpdateSourceTrigger=PropertyChanged}">
+                                            <TextBox Width="45" Text="{Binding Path=MaxLossEdit, Mode=TwoWay, StringFormat={}{0:F2}}">
                                                     <TextBox.Style>
                                                         <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
                                                             <Style.Triggers>
@@ -245,7 +309,13 @@
                                             </TextBlock>
                                         </StackPanel>
                                     </StackPanel>
-                                    
+
+                                    <StackPanel Margin="2" Orientation="Horizontal">
+                                        <TextBlock Text="LTP: "></TextBlock>
+                                        <TextBlock Text="{Binding Path=LTP, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding Path=CurrentProfitLoss, Converter={StaticResource ProfitLossToBackgroundConverter}}">
+                                        </TextBlock>
+                                    </StackPanel>
+
                                     <StackPanel Margin="2" Orientation="Horizontal">
                                         <TextBlock Text="Current Profit/Loss: "></TextBlock>
                                         <TextBlock Text="{Binding Path=CurrentProfitLoss, UpdateSourceTrigger=PropertyChanged}" Foreground="{Binding Path=CurrentProfitLoss, Converter={StaticResource ProfitLossToBackgroundConverter}}">
@@ -278,6 +348,17 @@
                                             </Style>
                                         </Button.Style>
                                     </Button>
+                                        <Button Margin="2" x:Name="btnPartialSqureOff" Click="btnPartialSqureOff_Click" Content="Partial Square Off">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding Path=OpenPosition, UpdateSourceTrigger=PropertyChanged}" Value="0">
+                                                            <Setter Property="IsEnabled" Value="False"></Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
                                         <Button Margin="2" Width="70"  x:Name="btnSqureOff" CommandParameter="{Binding}" Command="{Binding Path=DataContext.SquareOffCommand, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=UserControl}}" Content="Square Off">
                                             <Button.Style>
                                                 <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
@@ -293,6 +374,8 @@
                                         
                                     </Button>
                                     </StackPanel>
+
+                                    <TextBlock Text="{Binding Path=DebugStatus, UpdateSourceTrigger=PropertyChanged}"></TextBlock>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>
@@ -300,5 +383,174 @@
                 </ItemsControl>
             </ScrollViewer>
         </GroupBox>
+        <Expander Grid.Row="2" Grid.ColumnSpan="2" Header="Global Profit/Loss Status">
+            <Grid>
+                <StackPanel Grid.RowSpan="2" HorizontalAlignment="Center" VerticalAlignment="Center" Orientation="Horizontal">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting, UpdateSourceTrigger=PropertyChanged}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock FontWeight="SemiBold" FontSize="14" Margin="10">
+                                    <Run Text="Global profit/loss is not configured yet. Click "></Run>
+                                <Hyperlink  Command="{Binding Path=SetGlobalProfitLossCommand}">
+                                    <TextBlock Text="here "></TextBlock>
+                                </Hyperlink>
+                                <Run Text="to configure."></Run>
+                            </TextBlock>
+                </StackPanel>
+                <Grid Margin="5">
+                    <Grid.Style>
+                        <Style TargetType="Grid">
+                            <Setter Property="Visibility" Value="Visible"></Setter>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting, UpdateSourceTrigger=PropertyChanged}" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Grid.Style>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                        <ColumnDefinition Width="auto"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"></RowDefinition>
+                        <RowDefinition Height="auto"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <TextBlock >
+                                <Run Text="Max Profit : "></Run>
+                                <TextBlock Width="60" Text="{Binding Path=GlobalProfitLossSetting.MaxProfit, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting.IsMaxProfitEditMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                                </TextBlock>
+                                <TextBox Margin="0,-5" HorizontalAlignment="Center" Width="60" Text="{Binding Path=GlobalProfitLossSetting.MaxProfitEdit, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting.IsMaxProfitEditMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </TextBlock>
+
+                    <TextBlock Grid.Column="1">
+                                <Run Text="Max Loss : "></Run>
+                                <TextBlock Width="60" Text="{Binding Path=GlobalProfitLossSetting.MaxLoss, UpdateSourceTrigger=PropertyChanged}">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock" BasedOn="{StaticResource {x:Type TextBlock}}">
+                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting.IsMaxLossEditMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                                </TextBlock>
+                                <TextBox Margin="0,-5" Width="120" Text="{Binding Path=GlobalProfitLossSetting.MaxLossEdit, UpdateSourceTrigger=PropertyChanged}">
+                                    <TextBox.Style>
+                                        <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting.IsMaxLossEditMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBox.Style>
+                                </TextBox>
+                            </TextBlock>
+
+                    <StackPanel Grid.Column="2" >
+                        <Button Margin="0,0,2,0" Width="70" Command="{Binding Path=EditGlobalProfitCommand, UpdateSourceTrigger=PropertyChanged}" Content="Edit">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting.IsMaxLossEditMode, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Margin="2" Width="70" Content="Apply" Command="{Binding Path=ApplyGlobalProfitCommand, UpdateSourceTrigger=PropertyChanged}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting.IsMaxLossEditMode, UpdateSourceTrigger=PropertyChanged}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Margin="2" Width="70" Content="Cancel" Command="{Binding Path=CancelGlobalProfitCommand, UpdateSourceTrigger=PropertyChanged}">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource {x:Type Button}}">
+                                    <Setter Property="Visibility" Value="Visible"></Setter>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting.IsMaxLossEditMode, UpdateSourceTrigger=PropertyChanged}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                    </StackPanel>
+
+                    <Grid Grid.Row="1" Grid.ColumnSpan="3">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock >
+                            <TextBlock.Inlines>
+                                <Run Text="Current Profit/Loss : " FontWeight="SemiBold"></Run>
+                                <Run Text="{Binding Path=GlobalProfitLossSetting.CurrentProfitLoss}" Foreground="{Binding Path=GlobalProfitLossSetting.CurrentProfitLoss, Converter={StaticResource ProfitLossToBackgroundConverter}}" FontWeight="SemiBold"></Run>
+                            </TextBlock.Inlines>
+                        </TextBlock>
+
+                        <ProgressBar Grid.Row="1" Height="25" Minimum="{Binding Path=GlobalProfitLossSetting.Min, UpdateSourceTrigger=PropertyChanged}" 
+                                             Maximum="{Binding Path=GlobalProfitLossSetting.Max, UpdateSourceTrigger=PropertyChanged}"
+                                     Value="{Binding Path=GlobalProfitLossSetting.AbsoluteProfitLoss, UpdateSourceTrigger=PropertyChanged}"
+                                             Foreground="{Binding Path=GlobalProfitLossSetting.CurrentProfitLoss, Converter={StaticResource ProfitLossToBackgroundConverter}}">
+                            <ProgressBar.Style>
+                                <Style TargetType="ProgressBar" BasedOn="{StaticResource {x:Type ProgressBar}}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding Path=GlobalProfitLossSetting.CurrentProfitLoss, UpdateSourceTrigger=PropertyChanged}" Value="0">
+                                            <Setter Property="Visibility" Value="Collapsed"></Setter>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ProgressBar.Style>
+
+                        </ProgressBar>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Expander>
+        
     </Grid>
 </UserControl>

@@ -1,0 +1,88 @@
+﻿<Window x:Class="StockTradeStrategy.BuySellOnSignal.Views.SingalParameterSetting"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:StockTradeStrategy.BuySellOnSignal.Views"
+             mc:Ignorable="d" 
+        xmlns:vm="clr-namespace:StockTradeStrategy.BuySellOnSignal.ViewModels"
+        Title="Signal Setting"
+        WindowStyle="ToolWindow"
+        ResizeMode="NoResize"
+             Height="280" Width="500">
+    <Window.DataContext>
+        <vm:SignalparameterSettingViewmodel></vm:SignalparameterSettingViewmodel>
+    </Window.DataContext>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="auto"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <!--Signal Related Info-->
+        <Grid.Resources>
+            <Style TargetType="TextBlock" x:Key="txtEmample">
+                <Setter Property="FontStyle" Value="Italic" ></Setter>
+                <Setter Property="Foreground" Value="LightGray" ></Setter>
+            </Style>
+            <Style TargetType="StackPanel" >
+                <Setter Property="Margin" Value="5"></Setter>
+            </Style>
+        </Grid.Resources>
+        <StackPanel Grid.ColumnSpan="3" HorizontalAlignment="Stretch">
+            <TextBlock Text="Singal Setting Parameters" FontSize="16"  FontWeight="SemiBold"></TextBlock>
+        <Border BorderBrush="#CCC" BorderThickness="0.6" Grid.Row="1" Margin="0,10,0,5"></Border>
+        </StackPanel>
+        <StackPanel Grid.Row="1">
+            <TextBlock Text="Signal Seperator"></TextBlock>
+            <TextBox Text="{Binding Path=SettingInfo.Seperator}"></TextBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="1">
+            <TextBlock Text="Buy/Sell Signal Index"></TextBlock>
+            <TextBox Text="{Binding Path=SettingInfo.BuySellSignalIndex, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="2">
+            <TextBlock Text="Price Index"></TextBlock>
+            <TextBox Text="{Binding Path=SettingInfo.PriceIndex}"></TextBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="0">
+            <TextBlock Text="Time Index"></TextBlock>
+            <TextBox Text="{Binding Path=SettingInfo.TimeIndex}"></TextBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="1">
+            <TextBlock Text="Time Format"></TextBlock>
+            <TextBox Text="{Binding Path=SettingInfo.TimeFormat, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+            <TextBlock Style="{StaticResource txtEmample}" Text="Hint ex: HH:MM:SS"></TextBlock>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Grid.Column="0">
+            <TextBlock Text="Time Difference (In Minutes)"></TextBlock>
+            <TextBox ToolTip="Difference between server time and signal time" Text="{Binding Path=SettingInfo.TimeDifferenceBetweenSystemAndSignal}"></TextBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Grid.Column="1">
+            <TextBlock Text="Signal Time Buffer (In Minutes)"></TextBlock>
+            <TextBox Text="{Binding Path=SettingInfo.TimeBufferToTakeOrder, UpdateSourceTrigger=PropertyChanged}" ToolTip="Max difference between signal generated time and current in which application should take generated signal as valid signal"></TextBox>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Grid.Column="2">
+            <TextBlock Text="Price Buffer"></TextBlock>
+            <TextBox Text="{Binding Path=SettingInfo.PriceBufferToAcceptOrder,UpdateSourceTrigger=PropertyChanged}" ToolTip="Max difference between last generated stock price and current in stock price which application should take generated signal as valid signal"></TextBox>
+        </StackPanel>
+
+        <Grid Height="50" Grid.Row="4" Grid.ColumnSpan="4" Background="#CCC">
+        <Button Content="Save" Command="{Binding Path=SaveCommand}" VerticalAlignment="Center" Grid.Column="3" Grid.Row="4" Width="70" Margin="10" HorizontalAlignment="Right"></Button>
+        </Grid>
+    </Grid>
+</Window>

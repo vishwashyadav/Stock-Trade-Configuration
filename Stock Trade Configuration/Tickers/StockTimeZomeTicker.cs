@@ -2,6 +2,7 @@
 
 using StockTradeConfiguration.Models;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,9 +12,15 @@ using System.Windows.Threading;
 
 namespace Stock_Trade_Configuration
 {
+    public struct TimeZoneStartEnd
+    {
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan EndTime { get; set; }
+        public TimeZoneStatus? Status { get; set; }
+    }
     public class StockTimeZomeTicker
     {
-        
+        private ConcurrentDictionary<string, TimeZoneStartEnd> _timeZoneStartEndDictionary;
         StockTimeZone? _timeZone;
         DispatcherTimer _timer;
         private static StockTimeZomeTicker _instance = new StockTimeZomeTicker();
@@ -24,10 +31,22 @@ namespace Stock_Trade_Configuration
             get { return _instance; }
         }
 
-
         private StockTimeZomeTicker()
         {
-            
+            _timeZoneDictionary = new Dictionary<string, TimeZoneStatus?>();
+            _timeZoneStartEndDictionary = new ConcurrentDictionary<string, TimeZoneStartEnd>();
+            _timeZoneStartEndDictionary[StockTimeZone.EquityMarket.ToString()] = new TimeZoneStartEnd() { StartTime=Time(9,15,0), EndTime = Time(15,20,0)};
+            Events.SubscribeTimeZoneEvent += Events_SubscribeTimeZoneEvent;
+        }
+
+        private void Events_SubscribeTimeZoneEvent(string timeZoneName, TimeSpan startTime, TimeSpan endTime)
+        {
+            _timeZoneStartEndDictionary[timeZoneName] = new TimeZoneStartEnd() { StartTime = startTime, EndTime=endTime };
+        }
+
+        private TimeSpan Time(int hour, int min, int second)
+        {
+            return new TimeSpan(hour, min, second);
         }
 
         public async void Start()
@@ -53,33 +72,31 @@ namespace Stock_Trade_Configuration
 
         public async Task CheckTimeZoneTick()
         {
-
-            await Task.Run(() => 
+            await Task.Run(() =>
             {
-                 check();
+                check();
             });
-
         }
+
+        private Dictionary<string, TimeZoneStatus?> _timeZoneDictionary;
 
         private void CheckTimeZone()
         {
-            StockTimeZone timeZone = StockTimeZone.Idle;
-            ViewModels.SettingValues settingValues = ViewModels.SettingValues.Instance;
-
-            TimeSpan currentTimeSpan = DateTimeOffset.Now.TimeOfDay;
-            if (currentTimeSpan >= settingValues.StockHighLowWatchTimeStart && currentTimeSpan <= settingValues.StockHighLowWatchTimeEnd)
+            foreach (var item in _timeZoneStartEndDictionary)
             {
-                timeZone = StockTimeZone.HighLowWatch;
-            }
-            else if (currentTimeSpan >= settingValues.IntradayTradeTimeStart && currentTimeSpan <= settingValues.IntradaySquareOffTime)
-                timeZone = StockTimeZone.TradeTime;
-            else
-                timeZone = StockTimeZone.Idle;
+                TimeZoneStatus? status = null;
+                TimeSpan currentTime = DateTime.Now.TimeOfDay;
 
-            if( _timeZone == null || _timeZone!=timeZone)
-            {
-                Events.RaiseTimeZoneChangedEvent(timeZone);
-                _timeZone = timeZone;
+                if (currentTime >= item.Value.StartTime && currentTime < item.Value.EndTime)
+                    status = TimeZoneStatus.Started;
+                else if (currentTime > item.Value.EndTime)
+                    status = TimeZoneStatus.Stopped;
+
+                if(status.HasValue && (!_timeZoneDictionary.ContainsKey(item.Key) || _timeZoneDictionary[item.Key] != status))
+                {
+                    _timeZoneDictionary[item.Key] = status;
+                    Events.RaiseTimeZoneChangedEvent(item.Key, status.Value);
+                }
             }
         }
 

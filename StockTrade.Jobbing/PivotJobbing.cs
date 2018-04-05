@@ -11,108 +11,157 @@ namespace StockTrade.Jobbing
     [JobbingType(Name ="Pivot Jobbing")]
     public class PivotJobbing : JobbingStockBase
     {
-        private int _currentOpenPosition = 0;
+        private OrderMode? nextOrderMode;
         private int _transactionCount = 0;
+        public TargetStatus? TargetStatus { get; set; }
         public StockIncrementalMethod IncrementalMethod { get; set; }
         public int IncrementalNumber { get; set; }
         public OrderOnPrice OrderOnPriceType { get; set; }
         public bool OpenForOrder { get; set; }
         public decimal PivotPrice { get; set; }
-        public decimal TargetPrice { get; set; }
         private OrderMode? lastOrder { get; set; }
 
         #region Override Methods
-        public override void BuySellStock(LTP ltp)
+       private int GetQuantity()
         {
-            OrderMode orderMode = OrderMode.BUY;
-            var lastPrice = ltp.LastPrice;
-            bool canPlaceOrder = CanPlaceOrder(lastPrice, ref orderMode);
-            if (canPlaceOrder)
+            int quantity = (_transactionCount == 0 || IncrementalNumber == 0) ? StocksBuySellQuantityStart :
+               (IncrementalMethod == StockIncrementalMethod.Addition ? (_transactionCount + IncrementalNumber) :
+               (_transactionCount * IncrementalNumber));
+            return quantity;
+        }
+        public override void BuySellStock(Quote quote)
+        {
+            OrderMode? orderMode;
+            var lastPrice = quote.LastPrice;
+            //bool canPlaceOrder = CanPlaceOrder(lastPrice, ref orderMode);
+            TargetStatus = null;
+            if(nextOrderMode.HasValue && OpenPositions==0)
             {
-                int quantity = (_transactionCount == 0 || IncrementalNumber == 0) ? StocksBuySellQuantityStart :
-                    (IncrementalMethod == StockIncrementalMethod.Addition ? (_transactionCount + IncrementalNumber) :
-                    (_transactionCount * IncrementalNumber));
-                if (!lastOrder.HasValue)
-                {
-                    PlaceOrder(orderMode.ToString(), quantity.ToString(), lastPrice.ToString(), OrderOnPrice.MarketPrice);
-                    _currentOpenPosition += StocksBuySellQuantityStart;
-                }
-                else
-                {
-                    if(lastOrder.Value == orderMode)
-                    {
-                        //1. Close Previouse Position
-                        var closePositionOrder = orderMode == OrderMode.BUY ? OrderMode.SELL : OrderMode.BUY;
-                        PlaceOrder(closePositionOrder.ToString(), _currentOpenPosition.ToString(), lastPrice.ToString(), OrderOnPrice.MarketPrice);
-                        PlaceOrder(closePositionOrder.ToString(), quantity.ToString(), lastPrice.ToString(), OrderOnPrice.MarketPrice);
-                        PivotPrice = lastPrice;
-                        orderMode = closePositionOrder;
-                    }
-                    else
-                    {
-                        PlaceOrder(orderMode.ToString(), quantity.ToString(), lastPrice.ToString(), OrderOnPrice.MarketPrice);
-                    }
-                }
-                _currentOpenPosition = quantity;
-                lastOrder = orderMode;
-                _transactionCount++;
+                PlaceOrder(nextOrderMode.Value.ToString(), GetQuantity(), quote.LastPrice);
+                return;
             }
+
+            if (!lastOrder.HasValue || OpenPositions==0)
+            {
+                if(quote.LastPrice > PivotPrice)
+                {
+                    PlaceOrder(OrderMode.BUY.ToString(), GetQuantity(), quote.LastPrice);
+                }
+                else if(quote.LastPrice < PivotPrice)
+                {
+                    PlaceOrder(OrderMode.SELL.ToString(), GetQuantity(), quote.LastPrice);
+                }
+            }
+            else if (lastOrder.HasValue && OpenPositions != 0)
+            {
+                //Target met Condition
+                if (lastOrder.Value == OrderMode.BUY && quote.Bids.Any(s => s.Price >= TargetPrice))
+                {
+                    TargetStatus = StockTradeConfiguration.Models.TargetStatus.TargetHit;
+                    PlaceOrder(OrderMode.SELL.ToString(), Convert.ToInt32( Math.Abs(OpenPositions)), quote.LastPrice);
+                }
+                //Target met condition
+                else if (lastOrder.Value == OrderMode.SELL && quote.Offers.Any(s => s.Price <= TargetPrice))
+                {
+                    TargetStatus = StockTradeConfiguration.Models.TargetStatus.TargetHit;
+                    PlaceOrder(OrderMode.BUY.ToString(), Convert.ToInt32(Math.Abs(OpenPositions)), quote.LastPrice);
+                }
+                //Stop Loss condition
+                else if (lastOrder.Value == OrderMode.BUY && quote.LastPrice < StopLossPrice)
+                {
+                    TargetStatus = StockTradeConfiguration.Models.TargetStatus.StopLossHit;
+                    PlaceOrder(OrderMode.SELL.ToString(), Convert.ToInt32(Math.Abs(OpenPositions)), quote.LastPrice);
+                }
+                //Stop Loss condition
+                else if(lastOrder.Value == OrderMode.SELL && quote.LastPrice > StopLossPrice)
+                {
+                    TargetStatus = StockTradeConfiguration.Models.TargetStatus.StopLossHit;
+                    PlaceOrder(OrderMode.BUY.ToString(), Convert.ToInt32(Math.Abs(OpenPositions)), quote.LastPrice);
+                }
+            }
+
+          
         }
         public override void ExecutedOrder(Order order)
         {
-            if(order.Status.Equals("completed", StringComparison.InvariantCultureIgnoreCase))
+            nextOrderMode = null;
+            if (order.Status.Equals("complete", StringComparison.InvariantCultureIgnoreCase))
             {
-                if(lastOrder.Value == OrderMode.BUY)
+                OrderMode mode = order.TransactionType.Equals("buy", StringComparison.InvariantCultureIgnoreCase) ? OrderMode.BUY : OrderMode.SELL;
+                if(mode == OrderMode.BUY)
                 {
-                    TargetPrice = (MarginType == MarginType.Absolute) ?
-                        (order.AveragePrice + Margin).GetNextValidPrice(true) :
-                        (((order.AveragePrice * Margin) / 100.0m) + order.AveragePrice).GetNextValidPrice(true);
-                    
-                                 
+                    OpenPositions = OpenPositions + order.Quantity;
                 }
-                else if(lastOrder.Value == OrderMode.SELL)
+                else
                 {
-                    TargetPrice = (MarginType == MarginType.Absolute) ?
-                        (order.AveragePrice - Margin).GetNextValidPrice(false) :
-                        (order.AveragePrice -  ((order.AveragePrice * Margin) / 100.0m)).GetNextValidPrice(false);
+                    OpenPositions = OpenPositions - order.Quantity;
+                }
 
+                if (TargetStatus == null)
+                {
+                    var buyTargetPriceMargin = (MarginType == MarginType.Absolute) ?
+                          (Margin).GetNextValidPrice(true) :
+                          (((order.AveragePrice * Margin) / 100.0m)).GetNextValidPrice(true);
+
+                    var sellTargetPriceMargin = (MarginType == MarginType.Absolute) ?
+                                            (Margin).GetNextValidPrice(false) :
+                                            (((order.AveragePrice * Margin) / 100.0m)).GetNextValidPrice(false);
+
+                    if (mode == OrderMode.BUY)
+                    {
+                        TargetPrice = order.AveragePrice +  buyTargetPriceMargin;
+                        StopLossPrice = order.AveragePrice - (sellTargetPriceMargin*2);
+                        lastOrder = OrderMode.BUY;
+                    }
+                    else if (mode == OrderMode.SELL)
+                    {
+                        TargetPrice = order.AveragePrice - sellTargetPriceMargin;
+                        lastOrder = OrderMode.SELL;
+                        StopLossPrice = order.AveragePrice + (buyTargetPriceMargin*2);
+                    }
+                    if (OpenPositions != 0)
+                    {
+                        _transactionCount++;
+                    }
                 }
-                PivotPrice = order.AveragePrice;
+                else
+                {
+                    if(TargetStatus == StockTradeConfiguration.Models.TargetStatus.TargetHit)
+                    {
+                        TargetStatus = null;
+                        TargetHitCount++;
+                        if (mode == OrderMode.BUY)
+                        {
+                            PlaceOrder(OrderMode.SELL.ToString(), GetQuantity(), order.AveragePrice, OrderOnPrice.MarketPrice);
+                        }
+                        else
+                        {
+                            PlaceOrder(OrderMode.BUY.ToString(), GetQuantity(), order.AveragePrice, OrderOnPrice.MarketPrice);
+                        }
+                    }
+                    else
+                    {
+                        TargetStatus = null;
+                        StopLossHitCount--;
+                        PlaceOrder(mode.ToString(), GetQuantity(), order.AveragePrice, OrderOnPrice.MarketPrice);
+                    }
+                }
             }
+            RaiseTargetStopLossEvent();
+            RaiseTargetStopLossHitEvent();
+            Events.RaiseOpenPositionsChangedEvent(Exchange, Symbol, Convert.ToInt32(OpenPositions));
         }
         #endregion
-        private bool CanPlaceOrder(decimal lastPrice, ref OrderMode orderMode)
-        {
-            bool shouldPlaceOrder = false;
-
-            if (Math.Abs(OpenPositions) > 0)
-            {
-                if (lastPrice >= TargetPrice)
-                {
-                    //Place Buy Order
-                    shouldPlaceOrder = true;
-                    orderMode = OrderMode.BUY;
-                }
-                else if (lastPrice < PivotPrice)
-                {
-                    //Place Sell Order
-                    shouldPlaceOrder = true;
-                    orderMode = OrderMode.SELL;
-                }
-            }
-            else
-            {
-                if (lastPrice > PivotPrice)
-                {
-                    orderMode = OrderMode.BUY;
-                }
-                else if (lastPrice < PivotPrice)
-                {
-                    orderMode = OrderMode.SELL;
-                }
-            }
-            return shouldPlaceOrder;
-        }
         
+
+        private void RaiseTargetStopLossEvent()
+        {
+            Events.RaiseTargetStopLossChangeEvent(Exchange, Symbol, TargetPrice, StopLossPrice);
+        }
+
+        private void RaiseTargetStopLossHitEvent()
+        {
+            Events.RaiseTargetStopLossHitEvent(Exchange, Symbol, TargetHitCount, StopLossHitCount);
+        }
     }
 }

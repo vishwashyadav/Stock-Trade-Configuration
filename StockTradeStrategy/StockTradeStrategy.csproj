@@ -34,6 +34,7 @@
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml.Linq" />
@@ -50,10 +51,15 @@
     <Compile Include="BuySellOnSignal\Models\BuySellOnSignalConfig.cs" />
     <Compile Include="BuySellOnSignal\Models\BuySellSignalOrderManager.cs" />
     <Compile Include="BuySellOnSignal\Models\ConfigFileNames.cs" />
+    <Compile Include="BuySellOnSignal\Models\GlobalProfitLossSetting.cs" />
+    <Compile Include="BuySellOnSignal\Models\OrderHistory.cs" />
     <Compile Include="BuySellOnSignal\Models\ReversalConfig.cs" />
+    <Compile Include="BuySellOnSignal\Models\SignalProfitType.cs" />
+    <Compile Include="BuySellOnSignal\Models\SignalSettingInfo.cs" />
     <Compile Include="BuySellOnSignal\ViewModels\BuySellSignalConfigurationViewmodel.cs" />
     <Compile Include="BuySellOnSignal\ViewModels\ReversalInfoEditorViewModel.cs" />
     <Compile Include="BuySellOnSignal\ViewModels\ReversalListViewmodel.cs" />
+    <Compile Include="BuySellOnSignal\ViewModels\SignalparameterSettingViewmodel.cs" />
     <Compile Include="BuySellOnSignal\Views\BuySellSignalConfiguration.xaml.cs">
       <DependentUpon>BuySellSignalConfiguration.xaml</DependentUpon>
     </Compile>
@@ -63,7 +69,21 @@
     <Compile Include="BuySellOnSignal\Views\ReversalList.xaml.cs">
       <DependentUpon>ReversalList.xaml</DependentUpon>
     </Compile>
+    <Compile Include="BuySellOnSignal\Views\SingalParameterSetting.xaml.cs">
+      <DependentUpon>SingalParameterSetting.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="BuySellOnSignal\Views\UserInputWindow.xaml.cs">
+      <DependentUpon>UserInputWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RangeBreakOutStrategy\Models\OrderStatus.cs" />
+    <Compile Include="RangeBreakOutStrategy\Models\RangeBreakOutManager.cs" />
+    <Compile Include="RangeBreakOutStrategy\Models\RangeBreakOutStockConfig.cs" />
+    <Compile Include="RangeBreakOutStrategy\Models\StockHighLowWatchManager.cs" />
+    <Compile Include="RangeBreakOutStrategy\Viewmodels\CandleRangeBreakoutConfigViewModel.cs" />
+    <Compile Include="RangeBreakOutStrategy\Views\RangeBreakoutConfigView.xaml.cs">
+      <DependentUpon>RangeBreakoutConfigView.xaml</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Page Include="BuySellOnSignal\Views\BuySellSignalConfiguration.xaml">
@@ -78,11 +98,27 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="BuySellOnSignal\Views\SingalParameterSetting.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="BuySellOnSignal\Views\UserInputWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="RangeBreakOutStrategy\Views\RangeBreakoutConfigView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KiteConnect\KiteConnect.csproj">
-      <Project>{F905A2BB-2280-463E-A12B-EFB66A818F4F}</Project>
+    <ProjectReference Include="..\..\..\..\..\..\Users\H9XR\Downloads\dotnetkiteconnect-kite3\KiteConnect\KiteConnect.csproj">
+      <Project>{F5F75AD6-E72F-44DA-8D3F-1360B000C684}</Project>
       <Name>KiteConnect</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\..\..\Users\H9XR\Source\Repos\GSTBilling\ConsoleApplication4\StockTradeConfiguration.PlaceOrder.KitePublisher\StockTradeConfiguration.PlaceOrder.KitePublisher.csproj">
+      <Project>{b2afc5a6-c6f8-4058-88dd-de8765adc23f}</Project>
+      <Name>StockTradeConfiguration.PlaceOrder.KitePublisher</Name>
     </ProjectReference>
     <ProjectReference Include="..\StockTrade.Jobbing\StockTrade.Jobbing.csproj">
       <Project>{E6039427-B5CA-4843-A396-71CFF816825A}</Project>
@@ -100,6 +136,9 @@
       <Project>{4b0a05a6-0743-4f4c-9d2b-864eb236ca9a}</Project>
       <Name>StockTradeConfigurationCommon</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="BuySellOnSignal\Controls\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

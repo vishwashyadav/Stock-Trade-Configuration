@@ -17,6 +17,22 @@ namespace StockTrade.Jobbing
         private int _openPositionsCount;
         private string _pendingOrderId;
         private bool _isCancelled;
+        private decimal _stopLossPrice;
+        private decimal _targetPrice;
+        private int _targetHitCount;
+        private int _stopLossHitCount;
+        public decimal StopLossPrice
+        {
+            get { return _stopLossPrice; }
+            set { _stopLossPrice = value; OnPropertyChanged("StopLossPrice"); }
+        }
+
+        public decimal TargetPrice
+        {
+            get { return _targetPrice; }
+            set { _targetPrice = value; OnPropertyChanged("TargetPrice"); }
+        }
+
         public string JobbingType { get; set; }
         public MarginType MarginType { get; set; }
         public decimal LastExecutedOrderPrice { get; set; }
@@ -25,6 +41,16 @@ namespace StockTrade.Jobbing
         protected JobbingDataSaver DataSaver { get; set; }
         protected OrderMode LastOrderMode { get; set; }
         public string SaveDirectoryName { get; set; }
+        public int TargetHitCount
+        {
+            get { return _targetHitCount; }
+            set { _targetHitCount = value; OnPropertyChanged("TargetHitCount"); }
+        }
+        public int StopLossHitCount
+        {
+            get { return _stopLossHitCount; }
+            set { _stopLossHitCount = value; OnPropertyChanged("StopLossHitCount"); }
+        }
         public int OpenPositionsCount
         {
             get { return _openPositionsCount; }
@@ -36,7 +62,7 @@ namespace StockTrade.Jobbing
         public decimal CurrentPrice
         {
             get { return _currentPrice; }
-            set { _currentPrice = value; UpdateStockActionPrice(); }
+            set { _currentPrice = value; UpdateStockActionPrice(); OnPropertyChanged("CurrentPrice"); }
         }
         public decimal Margin { get; set; }
         public decimal MaxLoss { get; set; }
@@ -76,7 +102,7 @@ namespace StockTrade.Jobbing
         public Kite Kite;
 
         #region Abstract Methods
-        public abstract void BuySellStock(LTP ltp);
+        public abstract void BuySellStock(Quote quote);
         public abstract void ExecutedOrder(Order order);
         #endregion
 
@@ -117,28 +143,38 @@ namespace StockTrade.Jobbing
             _isCancelled = true;
             RaiseStatusPropertyChanged();
         }
+        private void RaiseCurrentPriceChangeEvent(decimal currentPrice)
+        {
+            Events.RaiseStockLastPriceChangeEvent(Exchange, Symbol, currentPrice);
+        }
         private void WatchLTP()
         {
             try
             {
                 if (string.IsNullOrEmpty(_pendingOrderId))
                 {
-                    var getLTP = Kite.GetLTP(new string[] { string.Format("{0}:{1}", Exchange, Symbol) });
-                    this.BuySellStock(getLTP.Values.FirstOrDefault());
+                    //var quote = Kite.GetQuote(Exchange, Symbol);
+                    //this.BuySellStock(quote);
+                    var ltp = Kite.GetLTP(new string[] { string.Format("{0}:{1}",Exchange,Symbol) });
+                    RaiseCurrentPriceChangeEvent(ltp.FirstOrDefault().Value.LastPrice);
                 }
                 else
                 {
                     try
                     {
-                        var order = Kite.GetOrder(_pendingOrderId);
+                        var order = Kite.GetOrderHistory(_pendingOrderId);
                         if(order.Any(s => s.Status.Equals("complete", StringComparison.CurrentCultureIgnoreCase)))
                         {
                             var orderObj = order.FirstOrDefault(s => s.Status.Equals("complete", StringComparison.CurrentCultureIgnoreCase));
                             LastExecutedOrderPrice = orderObj.AveragePrice;
+                            ExecutedOrder(orderObj);
                             _pendingOrderId = null;
                         }
                         else if((order.Any(s => s.Status.Equals("rejected", StringComparison.CurrentCultureIgnoreCase))))
                         {
+                            var orderObj = order.FirstOrDefault(s => s.Status.Equals("rejected", StringComparison.CurrentCultureIgnoreCase));
+
+                            ExecutedOrder(orderObj);
                             _pendingOrderId = null;
                         }
                     }
@@ -161,10 +197,10 @@ namespace StockTrade.Jobbing
             RaiseOpenPositionsChangedEvent();
         }
 
-        protected void PlaceOrder(string orderMode, string quantity, string price, OrderOnPrice orderOnPrice = OrderOnPrice.LimitPrice)
+        protected void PlaceOrder(string orderMode, int quantity, decimal price, OrderOnPrice orderOnPrice = OrderOnPrice.MarketPrice)
         {
             var orderType = (orderOnPrice == OrderOnPrice.LimitPrice) ? "LIMIT" : "MARKET";
-            var order = Kite.PlaceOrder(Exchange, Symbol, orderMode.ToString(), StocksBuySellQuantityStart.ToString(), Price: price.ToString(), Product: "MIS", OrderType: "LIMIT");
+            var order = Kite.PlaceOrder(Exchange, Symbol, orderMode.ToString(), quantity, Price: price, Product: "MIS", OrderType: orderType);
             if (order.Any(s => s.Key.ToLower() == "status" && s.Value.ToLower() == "success"))
             {
                 if (order.ContainsKey("data"))

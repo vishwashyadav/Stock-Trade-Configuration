@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -37,11 +38,19 @@ namespace Stock_Trade_Configuration
 
         private void LoginAuthentication_Loaded(object sender, RoutedEventArgs e)
         {
+            dynamic activeX = this.webBrowser.GetType().InvokeMember("ActiveXInstance",
+                   BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.NonPublic,
+                   null, this.webBrowser, new object[] { });
+
+            if (activeX != null)
+                activeX.Silent = true;
+
+            webBrowser.Navigated += WebBrowser_Navigated;
+            
             KiteInstance.Instance.SetInfo(_userInfo);
             var url = KiteInstance.Instance.GetLoginURL();
             webBrowser.Navigate(new Uri(url));
-            webBrowser.Navigated += WebBrowser_Navigated;
-        }
+         }
 
         private void WebBrowser_Navigated(object sender, System.Windows.Navigation.NavigationEventArgs e)
         {
@@ -52,7 +61,14 @@ namespace Stock_Trade_Configuration
            // up.Login();
             string requestToke = "request_token";
             if (e.Uri.ToString().Contains(requestToke))
-                RequestToken =  e.Uri.ToString().Split(new string[] { requestToke + "=" }, StringSplitOptions.RemoveEmptyEntries)[1];
+            {
+                var split = e.Uri.ToString().Split(new char[] { '&' });
+                var str = split.FirstOrDefault(s => s.Contains(requestToke));
+                RequestToken = str.Split(new string[] { "=" }, StringSplitOptions.RemoveEmptyEntries)[1];
+            }
+            
+           // else
+               // webBrowser.Navigate(e.Uri);
             if(!string.IsNullOrEmpty(RequestToken))
             {
                 try

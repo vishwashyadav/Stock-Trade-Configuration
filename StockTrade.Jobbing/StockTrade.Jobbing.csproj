@@ -56,8 +56,8 @@
     <Compile Include="StrongPullBackJobbing.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KiteConnect\KiteConnect.csproj">
-      <Project>{f905a2bb-2280-463e-a12b-efb66a818f4f}</Project>
+    <ProjectReference Include="..\..\..\..\..\..\Users\H9XR\Downloads\dotnetkiteconnect-kite3\KiteConnect\KiteConnect.csproj">
+      <Project>{F5F75AD6-E72F-44DA-8D3F-1360B000C684}</Project>
       <Name>KiteConnect</Name>
     </ProjectReference>
     <ProjectReference Include="..\StockTradeConfiguration.Models\StockTradeConfiguration.Models.csproj">

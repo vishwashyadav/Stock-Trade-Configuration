@@ -8,8 +8,8 @@ namespace StockTradeConfiguration.Models
 {
     public enum StockTimeZone
     {
-        Idle,
-        HighLowWatch,
+        EquityMarket,
+        CommodityMarket,
         TradeTime
     }
 }

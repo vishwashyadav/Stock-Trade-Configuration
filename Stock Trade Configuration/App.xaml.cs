@@ -56,7 +56,7 @@ namespace Stock_Trade_Configuration
 
         private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
         {
-            
+            e.Handled = true;
         }
 
         void App_Startup(object sender, StartupEventArgs e)

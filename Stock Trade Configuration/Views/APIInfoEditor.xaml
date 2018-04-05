@@ -1,0 +1,55 @@
+﻿<Window x:Class="Stock_Trade_Configuration.Views.APIInfoEditor"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Stock_Trade_Configuration.Views"
+        mc:Ignorable="d"
+        xmlns:mod="clr-namespace:StockTradeConfiguration.Models;assembly=StockTradeConfiguration.Models"
+        xmlns:System="clr-namespace:System;assembly=mscorlib"
+        xmlns:vm="clr-namespace:Stock_Trade_Configuration.ViewModels"
+        Title="APIInfoEditor" Height="300" Width="300">
+    <Window.DataContext>
+        <vm:APIInfoEditorViewModel></vm:APIInfoEditorViewModel>
+    </Window.DataContext>
+    <Window.Resources>
+        <ObjectDataProvider x:Key="ApiClient" MethodName="GetValues"
+                            ObjectType="{x:Type System:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="mod:ApiClient"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+    </Window.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+
+        <GroupBox Header="Api Info">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition></RowDefinition>
+                    <RowDefinition></RowDefinition>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="auto"></ColumnDefinition>
+                    <ColumnDefinition></ColumnDefinition>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Text="Api Type : "></TextBlock>
+                <ComboBox SelectedIndex="0" ItemsSource="{Binding Source={StaticResource ApiClient}}" SelectedItem="{Binding Path=SelectedApiClient, UpdateSourceTrigger=PropertyChanged}" Grid.Column="1" IsEditable="True"></ComboBox>
+
+                <TextBlock Text="Name : " Grid.Row="1"></TextBlock>
+                <TextBox Grid.Row="1" Grid.Column="1"></TextBox>
+            </Grid>
+        </GroupBox>
+        <GroupBox Grid.Row="1" Header="API Related Info">
+            <Grid DataContextChanged="Grid_DataContextChanged" DataContext="{Binding Path=SelectedApiInstance}">
+                
+            </Grid>
+        </GroupBox>
+        
+    </Grid>
+</Window>

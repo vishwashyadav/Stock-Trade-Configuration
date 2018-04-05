@@ -3,10 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KiteConnect", "KiteConnect\KiteConnect.csproj", "{F905A2BB-2280-463E-A12B-EFB66A818F4F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KiteConnect Sample", "KiteConnect Sample\KiteConnect Sample.csproj", "{92864120-B315-4DC6-A3D1-8DA0026E3289}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Stock Trade Configuration", "Stock Trade Configuration\Stock Trade Configuration.csproj", "{4A6CF737-C3C8-4824-BAB9-C28DA8B71954}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTradeConfiguration.Models", "StockTradeConfiguration.Models\StockTradeConfiguration.Models.csproj", "{50A68408-3B5A-4F20-8135-B94E8258D511}"
@@ -25,20 +21,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTradeStrategy", "Stock
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTradeConfigurationCommon", "StockTradeConfigurationCommon\StockTradeConfigurationCommon.csproj", "{4B0A05A6-0743-4F4C-9D2B-864EB236CA9A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KiteConnect", "..\..\..\..\..\Users\H9XR\Downloads\dotnetkiteconnect-kite3\KiteConnect\KiteConnect.csproj", "{F5F75AD6-E72F-44DA-8D3F-1360B000C684}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StockTradeConfiguration.PlaceOrder.KitePublisher", "..\..\..\..\..\Users\H9XR\Source\Repos\GSTBilling\ConsoleApplication4\StockTradeConfiguration.PlaceOrder.KitePublisher\StockTradeConfiguration.PlaceOrder.KitePublisher.csproj", "{B2AFC5A6-C6F8-4058-88DD-DE8765ADC23F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{F905A2BB-2280-463E-A12B-EFB66A818F4F}.Debug|Any CPU.ActiveCfg = Release|Any CPU
-		{F905A2BB-2280-463E-A12B-EFB66A818F4F}.Debug|Any CPU.Build.0 = Release|Any CPU
-		{F905A2BB-2280-463E-A12B-EFB66A818F4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F905A2BB-2280-463E-A12B-EFB66A818F4F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{92864120-B315-4DC6-A3D1-8DA0026E3289}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{92864120-B315-4DC6-A3D1-8DA0026E3289}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{92864120-B315-4DC6-A3D1-8DA0026E3289}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{92864120-B315-4DC6-A3D1-8DA0026E3289}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4A6CF737-C3C8-4824-BAB9-C28DA8B71954}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4A6CF737-C3C8-4824-BAB9-C28DA8B71954}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A6CF737-C3C8-4824-BAB9-C28DA8B71954}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -75,6 +67,14 @@ Global
 		{4B0A05A6-0743-4F4C-9D2B-864EB236CA9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B0A05A6-0743-4F4C-9D2B-864EB236CA9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B0A05A6-0743-4F4C-9D2B-864EB236CA9A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F5F75AD6-E72F-44DA-8D3F-1360B000C684}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F5F75AD6-E72F-44DA-8D3F-1360B000C684}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F5F75AD6-E72F-44DA-8D3F-1360B000C684}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F5F75AD6-E72F-44DA-8D3F-1360B000C684}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B2AFC5A6-C6F8-4058-88DD-DE8765ADC23F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B2AFC5A6-C6F8-4058-88DD-DE8765ADC23F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B2AFC5A6-C6F8-4058-88DD-DE8765ADC23F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B2AFC5A6-C6F8-4058-88DD-DE8765ADC23F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

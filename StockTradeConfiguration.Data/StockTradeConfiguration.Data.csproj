@@ -45,11 +45,13 @@
     <Compile Include="PreOpenStockPicker.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SerialKeyManager.cs" />
+    <Compile Include="StockAPIBase.cs" />
     <Compile Include="TradingSymbolManager.cs" />
+    <Compile Include="ZerodhaAPI.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\KiteConnect\KiteConnect.csproj">
-      <Project>{F905A2BB-2280-463E-A12B-EFB66A818F4F}</Project>
+    <ProjectReference Include="..\..\..\..\..\..\Users\H9XR\Downloads\dotnetkiteconnect-kite3\KiteConnect\KiteConnect.csproj">
+      <Project>{F5F75AD6-E72F-44DA-8D3F-1360B000C684}</Project>
       <Name>KiteConnect</Name>
     </ProjectReference>
     <ProjectReference Include="..\StockTradeConfiguration.Models\StockTradeConfiguration.Models.csproj">

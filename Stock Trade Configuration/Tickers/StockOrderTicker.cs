@@ -79,7 +79,7 @@ namespace Stock_Trade_Configuration
                 {
                     var target = String.Format("{0:0.00}", Math.Abs(stockConfiguration.BreakOutPrice - stockConfiguration.BuySellPrice));
                     var symbol = stockConfiguration.StockSymbol.Split(new char[] { ':' });
-                    var request = _kite.PlaceOrder(symbol[0], symbol[1], stockConfiguration.OrderMode.ToString(), stockConfiguration.Quantity.ToString(),  OrderType:"MARKET", Price: stockConfiguration.BreakOutPrice.ToString(), Product: "MIS", StoplossValue: stockConfiguration.StopLoss.ToString(),TrailingStoploss:"0", SquareOffValue: stockConfiguration.StopLoss.ToString(), Variety:"bo",Validity:"DAY");
+                    var request = _kite.PlaceOrder(symbol[0], symbol[1], stockConfiguration.OrderMode.ToString(), stockConfiguration.Quantity,  OrderType:"MARKET", Price: stockConfiguration.BreakOutPrice, Product: "MIS", StoplossValue: stockConfiguration.StopLoss,TrailingStoploss:0, SquareOffValue: stockConfiguration.StopLoss, Variety:"co",Validity:"DAY");
                     return request.Any(s=>s.Key.ToLower()=="status" && s.Value.ToLower()=="success");
                 }
                 catch (Exception ex)
@@ -137,6 +137,12 @@ namespace Stock_Trade_Configuration
             {
 
             }
+        }
+
+        private List<string> _currentPlaceOrders = new List<string>();
+        private void CheckOrderStatus()
+        {
+
         }
     }
 }
